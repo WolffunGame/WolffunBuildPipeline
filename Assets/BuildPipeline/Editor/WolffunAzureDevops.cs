@@ -26,6 +26,7 @@ namespace Wolffun.BuildPipeline
             string scriptingBackend = "";
             string outputExtension = "";
             string scriptDefinedSymbols = "";
+            string splitApplicationBinary = "";
 #if UNITY_ANDROID
         string buildAppBundle = "";
 #endif
@@ -72,6 +73,9 @@ namespace Wolffun.BuildPipeline
             else if (args[i] == "-buildAppBundle")
             {
                 buildAppBundle = args[i + 1];
+            }else if (args[i] == "-splitApplicationBinary")
+            {
+                splitApplicationBinary = args[i + 1];
             }
 #endif
                 else if (args[i] == "-scriptDefinedSymbols")
@@ -135,7 +139,14 @@ namespace Wolffun.BuildPipeline
                 buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
                 //split application binary
-                PlayerSettings.Android.useAPKExpansionFiles = true;
+                if (splitApplicationBinary == "true")
+                {
+                    PlayerSettings.Android.useAPKExpansionFiles = true;
+                }
+                else
+                {
+                    PlayerSettings.Android.useAPKExpansionFiles = false;
+                }
                 break;
             case "false":
                 PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
