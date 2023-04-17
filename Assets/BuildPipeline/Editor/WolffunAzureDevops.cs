@@ -173,6 +173,36 @@ namespace Wolffun.BuildPipeline
                 Debug.LogError("Cannot find cloud build config");
             }
 
+            //configuration
+            switch (configuration)
+            {
+                case "Debug":
+                    buildOptions |= BuildOptions.Development | BuildOptions.AllowDebugging;
+                    break;
+                case "Release":
+                case "Development":
+                    buildPlayerOptions.options |= BuildOptions.None;
+                    break;
+                default:
+                    buildPlayerOptions.options |= BuildOptions.None;
+                    break;
+            }
+
+
+            //environment
+            switch (environment)
+            {
+                case "UAT":
+                    config.SetEnvironment(Environment.UAT, scriptDefinedSymbols);
+                    break;
+                case "Production":
+                    config.SetEnvironment(Environment.Production, scriptDefinedSymbols);
+                    break;
+                case "Staging":
+                    config.SetEnvironment(Environment.Staging, scriptDefinedSymbols);
+                    break;
+            }
+            
             //target
             switch (buildTarget)
             {
@@ -222,36 +252,6 @@ namespace Wolffun.BuildPipeline
                     break;
                 default:
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
-                    break;
-            }
-
-            //configuration
-            switch (configuration)
-            {
-                case "Debug":
-                    buildOptions |= BuildOptions.Development | BuildOptions.AllowDebugging;
-                    break;
-                case "Release":
-                case "Development":
-                    buildPlayerOptions.options |= BuildOptions.None;
-                    break;
-                default:
-                    buildPlayerOptions.options |= BuildOptions.None;
-                    break;
-            }
-
-
-            //environment
-            switch (environment)
-            {
-                case "UAT":
-                    config.SetEnvironment(Environment.UAT, scriptDefinedSymbols);
-                    break;
-                case "Production":
-                    config.SetEnvironment(Environment.Production, scriptDefinedSymbols);
-                    break;
-                case "Staging":
-                    config.SetEnvironment(Environment.Staging, scriptDefinedSymbols);
                     break;
             }
 
