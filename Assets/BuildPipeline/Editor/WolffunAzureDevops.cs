@@ -256,6 +256,9 @@ namespace Wolffun.BuildPipeline
             }
 
             AssetDatabase.SaveAssets();
+            #if UNITY_ANDROID
+            Debug.Log("Android Bundle version code: " + PlayerSettings.Android.bundleVersionCode);
+            #endif
 
             buildPlayerOptions.options = buildOptions;
             //scenes
