@@ -27,8 +27,11 @@ namespace Wolffun.BuildPipeline
             string outputExtension = "";
             string scriptDefinedSymbols = "";
             string splitApplicationBinary = "";
+#if UNITY_IOS
+            string buildXcodeAppend = "";
+#endif
 #if UNITY_ANDROID
-        string buildAppBundle = "";
+            string buildAppBundle = "";
 #endif
 
             for (int i = 0; i < args.Length; i++)
@@ -70,18 +73,25 @@ namespace Wolffun.BuildPipeline
                     outputExtension = args[i + 1];
                 }
 #if UNITY_ANDROID
-            else if (args[i] == "-buildAppBundle")
-            {
-                buildAppBundle = args[i + 1];
-            }else if (args[i] == "-splitApplicationBinary")
-            {
-                splitApplicationBinary = args[i + 1];
-            }
+                else if (args[i] == "-buildAppBundle")
+                {
+                    buildAppBundle = args[i + 1];
+                }
+                else if (args[i] == "-splitApplicationBinary")
+                {
+                    splitApplicationBinary = args[i + 1];
+                }
 #endif
                 else if (args[i] == "-scriptDefinedSymbols")
                 {
                     scriptDefinedSymbols = args[i + 1];
                 }
+#if UNITY_IOS
+                else if (args[i] == "-buildXcodeAppend")
+                {
+                    buildXcodeAppend = args[i + 1];
+                }
+#endif
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -104,68 +114,79 @@ namespace Wolffun.BuildPipeline
 
 
 #if UNITY_IOS
-        var path = outputPath;
-        buildPlayerOptions.locationPathName = path;
-        var b = UnityEditor.BuildPipeline.BuildCanBeAppended(BuildTarget.iOS, path);
-        PlayerSettings.stripEngineCode = true;
-        PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.iOS, ManagedStrippingLevel.Low);
-        switch (b)
-        {
-            case CanAppendBuild.Yes:
-                Debug.Log("Can append build");
-                buildOptions = BuildOptions.AcceptExternalModificationsToPlayer;
-                break;
-            case CanAppendBuild.No:
-                Debug.Log("Can't append build");
-                break;
-            case CanAppendBuild.Unsupported:
-                Debug.Log("Unknown build");
-                break;
-        }
+            var path = outputPath;
+            buildPlayerOptions.locationPathName = path;
+            var b = UnityEditor.BuildPipeline.BuildCanBeAppended(BuildTarget.iOS, path);
+            PlayerSettings.stripEngineCode = true;
+            PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.iOS, ManagedStrippingLevel.Low);
+            
+            if (buildXcodeAppend == "true")
+            {
+                switch (b)
+                {
+                    case CanAppendBuild.Yes:
+                        Debug.Log("Can append build");
+                        buildOptions = BuildOptions.AcceptExternalModificationsToPlayer;
+                        break;
+                    case CanAppendBuild.No:
+                        Debug.Log("Can't append build");
+                        break;
+                    case CanAppendBuild.Unsupported:
+                        Debug.Log("Unknown build");
+                        break;
+                }
+            }
+            else
+            {
+                Debug.Log("Skip append build");
+            }
 #endif
 
 #if UNITY_ANDROID
-        PlayerSettings.stripEngineCode = true;
-        PlayerSettings.Android.useCustomKeystore = false;
+            PlayerSettings.stripEngineCode = true;
+            PlayerSettings.Android.useCustomKeystore = false;
 
 
-        switch (buildAppBundle)
-        {
-            case "true":
-                PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
-                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+            switch (buildAppBundle)
+            {
+                case "true":
+                    PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
 
-                EditorUserBuildSettings.buildAppBundle = true;
-                buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    EditorUserBuildSettings.buildAppBundle = true;
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
-                //split application binary
-                if (splitApplicationBinary == "true")
-                {
-                    PlayerSettings.Android.useAPKExpansionFiles = true;
-                }
-                else
-                {
+                    //split application binary
+                    if (splitApplicationBinary == "true")
+                    {
+                        PlayerSettings.Android.useAPKExpansionFiles = true;
+                    }
+                    else
+                    {
+                        PlayerSettings.Android.useAPKExpansionFiles = false;
+                    }
+
+                    break;
+                case "false":
+                    PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7;
+
+                    EditorUserBuildSettings.buildAppBundle = false;
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+
+                    //split application binary
                     PlayerSettings.Android.useAPKExpansionFiles = false;
-                }
-                break;
-            case "false":
-                PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
-                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7;
+                    //minify release
 
-                EditorUserBuildSettings.buildAppBundle = false;
-                buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+            }
 
-                //split application binary
-                PlayerSettings.Android.useAPKExpansionFiles = false;
-                //minify release
+            //PlayerSettings.Android.minifyRelease = true;
+            //PlayerSettings.Android.minifyWithR8 = true;
 
-                break;
-        }
-
-        //PlayerSettings.Android.minifyRelease = true;
-        //PlayerSettings.Android.minifyWithR8 = true;
-        
-        Debug.Log("output: " + buildPlayerOptions.locationPathName);
+            Debug.Log("output: " + buildPlayerOptions.locationPathName);
 #endif
             var config = GetBuildConfig();
             if (!config)
@@ -202,7 +223,7 @@ namespace Wolffun.BuildPipeline
                     config.SetEnvironment(Environment.Staging, scriptDefinedSymbols);
                     break;
             }
-            
+
             //target
             switch (buildTarget)
             {
@@ -256,9 +277,9 @@ namespace Wolffun.BuildPipeline
             }
 
             AssetDatabase.SaveAssets();
-            #if UNITY_ANDROID
+#if UNITY_ANDROID
             Debug.Log("Android Bundle version code: " + PlayerSettings.Android.bundleVersionCode);
-            #endif
+#endif
 
             buildPlayerOptions.options = buildOptions;
             //scenes
@@ -275,10 +296,10 @@ namespace Wolffun.BuildPipeline
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<ProjectBuildConfiguration>)
                 .FirstOrDefault();
-            
-            if(buildConfig == null)
+
+            if (buildConfig == null)
                 throw new Exception("Cannot find build config");
-            
+
             return buildConfig;
         }
     }
