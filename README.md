@@ -20,11 +20,11 @@ The configuration file is used to define the build settings for the project. To 
 In the configuration file, you can define the following settings:
 
 - **Environment**: All Wolffun Game projects have three types of environments:
-  - Staging: This environment is used for testing before releasing the game to the public.
+  - Staging: This environment is used by development team.
   - Production: This environment is used for the public release of the game.
-  - UAT: This environment is used to test the game before releasing to the staging environment.
+  - UAT: This environment is used to test the game in house before releasing.
 
   Each environment has its own scripting define symbols. You can define the scripting define symbols for each environment in the configuration file. Select the environment from the dropdown list in the configuration file and press the "Apply Scripting Define Symbols" button to apply the scripting define symbols to the project.
 
 
-With the configuration file set up, you can call **`Wolffun.BuildPipeline.WolffunAzureDevops.PerformBuild()`** in your CI/CD pipeline to build the project.
+With the configuration file set up, you can call **`Wolffun.BuildPipeline.WolffunAzureDevops.PerformBuild`** in your CI/CD pipeline to build the project.
