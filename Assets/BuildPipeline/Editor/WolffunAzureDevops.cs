@@ -19,19 +19,19 @@ namespace Wolffun.BuildPipeline
             string buildTarget = "";
             string outputPath = "";
             string outputFileName = "";
-            string configuration = "";
-            string buildNumber = "";
-            string appversion = "";
+            string configuration = "Development";
+            string buildNumber = "0";
+            string appversion = "0.0.0";
             string environment = "";
-            string scriptingBackend = "";
+            string scriptingBackend = "Mono";
             string outputExtension = "";
             string scriptDefinedSymbols = "";
-            string splitApplicationBinary = "";
+            string splitApplicationBinary = "false";
 #if UNITY_IOS
-            string buildXcodeAppend = "";
+            string buildXcodeAppend = "true";
 #endif
 #if UNITY_ANDROID
-            string buildAppBundle = "";
+            string buildAppBundle = "true";
 #endif
 
             for (int i = 0; i < args.Length; i++)
@@ -271,6 +271,15 @@ namespace Wolffun.BuildPipeline
                     buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
 
                     break;
+                case "LinuxServer64":
+                    buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
+                    EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+                    PlayerSettings.bundleVersion = appversion;
+                    //linux output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                
                 default:
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
                     break;
