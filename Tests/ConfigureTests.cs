@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Wolffun.BuildPipeline;
@@ -15,13 +17,29 @@ public class ConfigureTests
         Assert.IsNotNull(configure);
     }
 
-    // // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
-    // // `yield return null;` to skip a frame.
-    // [UnityTest]
-    // public IEnumerator ConfigureTestsWithEnumeratorPasses()
-    // {
-    //     // Use the Assert class to test conditions.
-    //     // Use yield to skip a frame.
-    //     yield return null;
-    // }
+    [Test]
+    public void TestParseSceneList()
+    {
+        //get scene list
+        var sceneList = AssetDatabase.FindAssets("t:Scene");
+        //get scene names
+        var scenePaths = new List<string>();
+        foreach (var scene in sceneList)
+        {
+            var scenePath = AssetDatabase.GUIDToAssetPath(scene);
+            //get file path without extensions
+            //var sceneName = scenePath.Substring(0, scenePath.Length - 6);
+            scenePaths.Add(scenePath);
+            Debug.Log(scenePath);
+        }
+
+        EditorBuildSettings.scenes = new EditorBuildSettingsScene[0];
+        for (int i = 0; i < scenePaths.Count; i++)
+        {
+            string sceneName = scenePaths[i];
+            EditorBuildSettings.scenes = EditorBuildSettings.scenes.Append(new EditorBuildSettingsScene(sceneName, true)).ToArray();
+        }
+        
+        Assert.AreEqual(scenePaths.Count, EditorBuildSettings.scenes.Length);
+    }
 }

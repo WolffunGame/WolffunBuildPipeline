@@ -33,6 +33,7 @@ namespace Wolffun.BuildPipeline
 #if UNITY_ANDROID
             string buildAppBundle = "true";
 #endif
+            string customScenesToBuild = "";
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -92,6 +93,10 @@ namespace Wolffun.BuildPipeline
                     buildXcodeAppend = args[i + 1];
                 }
 #endif
+                else if (args[i] == "-customScenesToBuild")
+                {
+                    customScenesToBuild = args[i + 1];
+                }
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -278,8 +283,9 @@ namespace Wolffun.BuildPipeline
                     //linux output file
                     buildPlayerOptions.locationPathName =
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
+
                     break;
-                
+
                 default:
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
                     break;
@@ -292,7 +298,25 @@ namespace Wolffun.BuildPipeline
 
             buildPlayerOptions.options = buildOptions;
             //scenes
-            buildPlayerOptions.scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+            try
+            {
+                if (string.IsNullOrEmpty(customScenesToBuild))
+                {
+                    buildPlayerOptions.scenes =
+                        EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+                }
+                else
+                {
+                    var sceneList = customScenesToBuild.Split(',');
+                    buildPlayerOptions.scenes = sceneList.Select(s => s.Trim()).ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error parsing custom scenes to build: " + e.Message);
+                buildPlayerOptions.scenes =
+                    EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+            }
 
 
             UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
