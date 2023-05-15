@@ -290,6 +290,17 @@ namespace Wolffun.BuildPipeline
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
                     break;
             }
+            
+            //disable logo unity
+            try
+            {
+                PlayerSettings.SplashScreen.showUnityLogo = false;
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+
 
             AssetDatabase.SaveAssets();
 #if UNITY_ANDROID
