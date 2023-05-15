@@ -1,0 +1,10 @@
+{
+  "name": "com.wolffun.buildpipeline",
+  "displayName": "Wolffun Build Pipeline",
+  "version": "1.0.7",
+  "unity": "2021.3",
+  "dependencies": {
+
+  },
+  "type": "tool"
+}
