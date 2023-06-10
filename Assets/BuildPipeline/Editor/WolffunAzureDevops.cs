@@ -27,6 +27,7 @@ namespace Wolffun.BuildPipeline
             string outputExtension = "";
             string scriptDefinedSymbols = "";
             string splitApplicationBinary = "false";
+            string androidCreateSymbols = "false";
 #if UNITY_IOS
             string buildXcodeAppend = "true";
 #endif
@@ -82,6 +83,10 @@ namespace Wolffun.BuildPipeline
                 {
                     splitApplicationBinary = args[i + 1];
                 }
+                else if (args[i] == "-androidCreateSymbols")
+                {
+                    androidCreateSymbols = args[i + 1];
+                }
 #endif
                 else if (args[i] == "-scriptDefinedSymbols")
                 {
@@ -101,7 +106,6 @@ namespace Wolffun.BuildPipeline
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
             //options
-            BuildOptions buildOptions = BuildOptions.None;
 
             switch (scriptingBackend)
             {
@@ -117,7 +121,6 @@ namespace Wolffun.BuildPipeline
                     break;
             }
 
-
 #if UNITY_IOS
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
@@ -131,7 +134,7 @@ namespace Wolffun.BuildPipeline
                 {
                     case CanAppendBuild.Yes:
                         Debug.Log("Can append build");
-                        buildOptions = BuildOptions.AcceptExternalModificationsToPlayer;
+                        buildPlayerOptions.options |= BuildOptions.AcceptExternalModificationsToPlayer;
                         break;
                     case CanAppendBuild.No:
                         Debug.Log("Can't append build");
@@ -150,7 +153,16 @@ namespace Wolffun.BuildPipeline
 #if UNITY_ANDROID
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.Android.useCustomKeystore = false;
-
+            
+            //create symbols zip
+            if (androidCreateSymbols == "true")
+            {
+                EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Debugging;
+            }
+            else
+            {
+                EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
+            }
 
             switch (buildAppBundle)
             {
@@ -203,7 +215,7 @@ namespace Wolffun.BuildPipeline
             switch (configuration)
             {
                 case "Debug":
-                    buildOptions |= BuildOptions.Development | BuildOptions.AllowDebugging;
+                    buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging;
                     break;
                 case "Release":
                 case "Development":
@@ -307,7 +319,7 @@ namespace Wolffun.BuildPipeline
             Debug.Log("Android Bundle version code: " + PlayerSettings.Android.bundleVersionCode);
 #endif
 
-            buildPlayerOptions.options = buildOptions;
+           
             //scenes
             try
             {
