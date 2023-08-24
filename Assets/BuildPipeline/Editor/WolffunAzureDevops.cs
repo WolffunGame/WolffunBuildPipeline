@@ -157,7 +157,7 @@ namespace Wolffun.BuildPipeline
             //create symbols zip
             if (androidCreateSymbols == "true")
             {
-                EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Debugging;
+                EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Public;
             }
             else
             {
