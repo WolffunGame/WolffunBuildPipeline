@@ -28,6 +28,7 @@ namespace Wolffun.BuildPipeline
             string scriptDefinedSymbols = "";
             string splitApplicationBinary = "false";
             string androidCreateSymbols = "false";
+            string xcodeBuildConfig = "Release";
 #if UNITY_IOS
             string buildXcodeAppend = "true";
 #endif
@@ -102,6 +103,12 @@ namespace Wolffun.BuildPipeline
                 {
                     customScenesToBuild = args[i + 1];
                 }
+#if UNITY_IOS
+                else if (args[i] == "-xcodeBuildConfig")
+                {
+                    xcodeBuildConfig = args[i + 1];
+                }
+#endif
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -120,13 +127,22 @@ namespace Wolffun.BuildPipeline
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
                     break;
             }
-
+            
 #if UNITY_IOS
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
             var b = UnityEditor.BuildPipeline.BuildCanBeAppended(BuildTarget.iOS, path);
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.iOS, ManagedStrippingLevel.Low);
+
+            if(xcodeBuildConfig == "Release")
+            {
+                EditorUserBuildSettings.iOSXcodeBuildConfig = XcodeBuildConfig.Release;
+            }
+            else
+            {
+                EditorUserBuildSettings.iOSXcodeBuildConfig = XcodeBuildConfig.Debug;
+            }
             
             if (buildXcodeAppend == "true")
             {
