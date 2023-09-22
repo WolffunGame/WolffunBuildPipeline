@@ -127,7 +127,7 @@ namespace Wolffun.BuildPipeline
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
                     break;
             }
-            
+
 #if UNITY_IOS
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
@@ -169,7 +169,7 @@ namespace Wolffun.BuildPipeline
 #if UNITY_ANDROID
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.Android.useCustomKeystore = false;
-            
+
             //create symbols zip
             if (androidCreateSymbols == "true")
             {
@@ -313,12 +313,22 @@ namespace Wolffun.BuildPipeline
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
                     break;
+                //Windows Server
+                case "WindowsServer":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+                    EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 64 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+
+                    break;
 
                 default:
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
                     break;
             }
-            
+
             //disable logo unity
             try
             {
@@ -335,7 +345,7 @@ namespace Wolffun.BuildPipeline
             Debug.Log("Android Bundle version code: " + PlayerSettings.Android.bundleVersionCode);
 #endif
 
-           
+
             //scenes
             try
             {
