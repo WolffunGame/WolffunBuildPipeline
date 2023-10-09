@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -29,6 +30,8 @@ namespace Wolffun.BuildPipeline
             string splitApplicationBinary = "false";
             string androidCreateSymbols = "false";
             string xcodeBuildConfig = "Release";
+            string il2cppCodegen = "OptimizeSpeed";
+            
 #if UNITY_IOS
             string buildXcodeAppend = "true";
 #endif
@@ -109,6 +112,11 @@ namespace Wolffun.BuildPipeline
                     xcodeBuildConfig = args[i + 1];
                 }
 #endif
+                else if (args[i] == "-il2cppCodegen")
+                {
+                    il2cppCodegen = args[i + 1];
+                }
+
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -127,7 +135,22 @@ namespace Wolffun.BuildPipeline
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
                     break;
             }
-
+            
+            switch (il2cppCodegen)
+            {
+                
+                case "OptimizeSize":
+                    //set to Il2CppCodeGeneration.OptimizeSize 
+                    EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
+                    break;
+                case "OptimizeSpeed":
+                    //set to Il2CppCodeGeneration.OptimizeSpeed
+                    EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSpeed;
+                    break;
+                default:
+                    break;
+            }
+            
 #if UNITY_IOS
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
