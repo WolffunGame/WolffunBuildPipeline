@@ -140,12 +140,10 @@ namespace Wolffun.BuildPipeline
             {
                 
                 case "OptimizeSize":
-                    //set to Il2CppCodeGeneration.OptimizeSize 
-                    EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSize;
+                    SetIl2CppCodeGeneration(buildTarget, Il2CppCodeGeneration.OptimizeSize);
                     break;
                 case "OptimizeSpeed":
-                    //set to Il2CppCodeGeneration.OptimizeSpeed
-                    EditorUserBuildSettings.il2CppCodeGeneration = Il2CppCodeGeneration.OptimizeSpeed;
+                    SetIl2CppCodeGeneration(buildTarget, Il2CppCodeGeneration.OptimizeSpeed);
                     break;
                 default:
                     break;
@@ -393,6 +391,56 @@ namespace Wolffun.BuildPipeline
 
             UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
         }
+
+        public static void SetIl2CppCodeGeneration(string targetName, Il2CppCodeGeneration codeGeneration)
+        {
+            
+            #if UNITY_2022_1_OR_NEWER
+            NamedBuildTarget target;
+            BuildTargetGroup targetGroup = BuildTargetGroup.iOS;
+            switch (targetName)
+            {
+                case "Android":
+                    target = NamedBuildTarget.Android;
+                    targetGroup = BuildTargetGroup.Android;
+                    break;
+                case "iOS":
+                    target = NamedBuildTarget.iOS;
+                    targetGroup = BuildTargetGroup.iOS;
+                    break;
+                case "StandaloneWindows":
+                    target = NamedBuildTarget.Standalone;
+                    targetGroup = BuildTargetGroup.Standalone;
+                    break;
+                case "StandaloneWindows64":
+                    target = NamedBuildTarget.Standalone;
+                    targetGroup = BuildTargetGroup.Standalone;
+                    break;
+                case "StandaloneOSX":
+                    target = NamedBuildTarget.Standalone;
+                    targetGroup = BuildTargetGroup.Standalone;
+                    break;
+                case "WebGL":
+                    target = NamedBuildTarget.WebGL;
+                    targetGroup = BuildTargetGroup.WebGL;
+                    break;
+                case "LinuxServer64":
+                    target = NamedBuildTarget.Server;
+                    targetGroup = BuildTargetGroup.LinuxHeadlessSimulation;
+                    break;
+                case "WindowsServer":
+                    target = NamedBuildTarget.Server;
+                    targetGroup = BuildTargetGroup.Standalone;
+                    break;
+            }
+            if (PlayerSettings.GetScriptingBackend(targetGroup) != ScriptingImplementation.IL2CPP) return;
+            
+            PlayerSettings.SetIl2CppCodeGeneration(target, codeGeneration);
+            #else
+            EditorUserBuildSettings.il2CppCodeGeneration = codeGeneration;
+            #endif
+        }
+
 
         public static ProjectBuildConfiguration GetBuildConfig()
         {
