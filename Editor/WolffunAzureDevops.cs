@@ -2,14 +2,43 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace Wolffun.BuildPipeline
 {
-    public class WolffunAzureDevops
+    public sealed class WolffunAzureDevops
     {
+        static string buildTarget = "";
+        static string outputPath = "";
+        static string outputFileName = "";
+        static string configuration = "Development";
+        static string buildNumber = "0";
+        static string appversion = "0.0.0";
+        static string environment = "";
+        static string scriptingBackend = "Mono";
+        static string outputExtension = "";
+        static string scriptDefinedSymbols = "";
+#if UNITY_ANDROID
+           static string splitApplicationBinary = "false";
+           static string androidCreateSymbols = "false";
+#endif
+
+
+        static string il2cppCodegen = "OptimizeSpeed";
+        static string buildAddressables = "true";
+
+#if UNITY_IOS
+          static  string xcodeBuildConfig = "Release";
+          static  string buildXcodeAppend = "true";
+#endif
+#if UNITY_ANDROID
+           static string buildAppBundle = "true";
+#endif
+        static string customScenesToBuild = "";
+
         public static void PerformBuild()
         {
             //get commandline arguments -outputPath $(Build.BinariesDirectory)
@@ -17,28 +46,7 @@ namespace Wolffun.BuildPipeline
             string[] args = System.Environment.GetCommandLineArgs();
             //log all arguments joined by space
             Debug.Log(string.Join(" ", args));
-            string buildTarget = "";
-            string outputPath = "";
-            string outputFileName = "";
-            string configuration = "Development";
-            string buildNumber = "0";
-            string appversion = "0.0.0";
-            string environment = "";
-            string scriptingBackend = "Mono";
-            string outputExtension = "";
-            string scriptDefinedSymbols = "";
-            string splitApplicationBinary = "false";
-            string androidCreateSymbols = "false";
-            string xcodeBuildConfig = "Release";
-            string il2cppCodegen = "OptimizeSpeed";
-            
-#if UNITY_IOS
-            string buildXcodeAppend = "true";
-#endif
-#if UNITY_ANDROID
-            string buildAppBundle = "true";
-#endif
-            string customScenesToBuild = "";
+
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -117,6 +125,10 @@ namespace Wolffun.BuildPipeline
                     il2cppCodegen = args[i + 1];
                 }
 
+                else if (args[i] == "-buildAddressables")
+                {
+                    buildAddressables = args[i + 1];
+                }
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -135,10 +147,9 @@ namespace Wolffun.BuildPipeline
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
                     break;
             }
-            
+
             switch (il2cppCodegen)
             {
-                
                 case "OptimizeSize":
                     SetIl2CppCodeGeneration(buildTarget, Il2CppCodeGeneration.OptimizeSize);
                     break;
@@ -148,7 +159,30 @@ namespace Wolffun.BuildPipeline
                 default:
                     break;
             }
-            
+
+            try
+            {
+                //addressables
+                if (buildAddressables == "true")
+                {
+                    //get AddressableAssetSettings
+                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                    settings.BuildAddressablesWithPlayerBuild =
+                        AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                }
+                else
+                {
+                    //get AddressableAssetSettings
+                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                    settings.BuildAddressablesWithPlayerBuild =
+                        AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                }
+            }
+            catch (Exception) 
+            { 
+                // ignored
+            }
+
 #if UNITY_IOS
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
@@ -355,7 +389,7 @@ namespace Wolffun.BuildPipeline
             {
                 PlayerSettings.SplashScreen.showUnityLogo = false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -394,8 +428,7 @@ namespace Wolffun.BuildPipeline
 
         public static void SetIl2CppCodeGeneration(string targetName, Il2CppCodeGeneration codeGeneration)
         {
-            
-            #if UNITY_2022_1_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
             NamedBuildTarget target;
             BuildTargetGroup targetGroup = BuildTargetGroup.iOS;
             switch (targetName)
@@ -433,12 +466,13 @@ namespace Wolffun.BuildPipeline
                     targetGroup = BuildTargetGroup.Standalone;
                     break;
             }
+
             if (PlayerSettings.GetScriptingBackend(targetGroup) != ScriptingImplementation.IL2CPP) return;
-            
+
             PlayerSettings.SetIl2CppCodeGeneration(target, codeGeneration);
-            #else
+#else
             EditorUserBuildSettings.il2CppCodeGeneration = codeGeneration;
-            #endif
+#endif
         }
 
 
