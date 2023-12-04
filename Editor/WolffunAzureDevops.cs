@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+#if ADDRESSABLES_ENABLED 
 using UnityEditor.AddressableAssets.Settings;
+#endif
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEditor.Build.Reporting;
