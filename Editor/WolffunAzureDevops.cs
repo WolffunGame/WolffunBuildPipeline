@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build;
 using UnityEngine;
+using UnityEditor.Build.Reporting;
 
 namespace Wolffun.BuildPipeline
 {
