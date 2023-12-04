@@ -4,11 +4,12 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEditor.Build.Reporting;
 
 namespace Wolffun.BuildPipeline
 {
+    using UnityEditor;
     public sealed class WolffunAzureDevops
     {
         static string buildTarget = "";
@@ -21,12 +22,14 @@ namespace Wolffun.BuildPipeline
         static string scriptingBackend = "Mono";
         static string outputExtension = "";
         static string scriptDefinedSymbols = "";
+        static string typeBundle = "Addressables";
+        static string assetBundle = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
 #endif
-
-
+        
+        
         static string il2cppCodegen = "OptimizeSpeed";
         static string buildAddressables = "true";
 
@@ -85,6 +88,14 @@ namespace Wolffun.BuildPipeline
                 else if (args[i] == "-outputExtension")
                 {
                     outputExtension = args[i + 1];
+                }
+                else if(args[i] == "-typeBundle")
+                {
+                    typeBundle = args[i + 1];
+                }
+                else if(args[i] == "-assetBundle")
+                {
+                    assetBundle = args[i + 1];
                 }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
@@ -162,21 +173,33 @@ namespace Wolffun.BuildPipeline
 
             try
             {
-                //addressables
-                if (buildAddressables == "true")
+                if (typeBundle == "Addressables")
                 {
-                    //get AddressableAssetSettings
-                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                    settings.BuildAddressablesWithPlayerBuild =
-                        AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+#if ADDRESSABLES_ENABLED 
+                    if (buildAddressables == "true")
+                    {
+                        //get AddressableAssetSettings
+                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                        settings.BuildAddressablesWithPlayerBuild =
+                            AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                    }
+                    else
+                    {
+                        //get AddressableAssetSettings
+                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                        settings.BuildAddressablesWithPlayerBuild =
+                            AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                    }
+#endif
                 }
-                else
+                else if(typeBundle == "AssetBundle")
                 {
-                    //get AddressableAssetSettings
-                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                    settings.BuildAddressablesWithPlayerBuild =
-                        AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                    if (assetBundle == "true")
+                    {
+                        BuildBundle();  
+                    }
                 }
+                
             }
             catch (Exception) 
             { 
@@ -467,6 +490,7 @@ namespace Wolffun.BuildPipeline
                     break;
             }
 
+
             if (PlayerSettings.GetScriptingBackend(targetGroup) != ScriptingImplementation.IL2CPP) return;
 
             PlayerSettings.SetIl2CppCodeGeneration(target, codeGeneration);
@@ -489,5 +513,64 @@ namespace Wolffun.BuildPipeline
 
             return buildConfig;
         }
-    }
+        public static void BuildBundle()
+        {
+            string outputPath = "Assets/StreamingAssets";
+            BuildTarget target = BuildTarget.NoTarget;
+            switch (buildTarget)
+            {
+                case "Android":
+                    target = BuildTarget.Android;
+                    break;
+                case "iOS":
+                    target = BuildTarget.iOS;
+                    break;
+                case "StandaloneWindows":
+                    target = BuildTarget.StandaloneWindows;
+                    break;
+                case "StandaloneWindows64":
+                    target = BuildTarget.StandaloneWindows64;
+                    break;
+                case "StandaloneOSX":
+                    target = BuildTarget.StandaloneOSX;
+                    break;
+                case "WebGL":
+                    target = BuildTarget.WebGL;
+                    break;
+                case "LinuxServer64":
+                    target = BuildTarget.StandaloneLinux64;
+                    break;
+                case "WindowsServer":
+                    target = BuildTarget.StandaloneWindows64;
+                    break;
+            }
+            ClearFolder(outputPath);
+            BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.AssetBundleStripUnityVersion, target);
+        }
+
+        private static void ClearFolder(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                // Lấy danh sách tất cả các tệp trong thư mục
+                string[] files = Directory.GetFiles(folderPath);
+                foreach (string file in files)
+                {
+                    File.Delete(file); // Xóa từng tệp
+                }
+
+                // Lấy danh sách tất cả các thư mục con
+                string[] subfolders = Directory.GetDirectories(folderPath);
+                foreach (string subfolder in subfolders)
+                {
+                    Directory.Delete(subfolder, true); // Xóa tất cả các thư mục con và nội dung của chúng
+                }
+            }
+            else
+            {
+                // Nếu thư mục không tồn tại, tạo mới nó
+                Directory.CreateDirectory(folderPath);
+            }
+        }
+    } 
 }
