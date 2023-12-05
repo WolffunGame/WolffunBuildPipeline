@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Settings;
 #if ADDRESSABLES_ENABLED 
 using UnityEditor.AddressableAssets.Settings;
 #endif
@@ -233,7 +234,7 @@ namespace Wolffun.BuildPipeline
             {
                 if (typeBundle == "Addressables")
                 {
-#if ADDRESSABLES_ENABLED 
+
                     if (buildAddressables == "true")
                     {
                         //get AddressableAssetSettings
@@ -248,7 +249,7 @@ namespace Wolffun.BuildPipeline
                         settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
                     }
-#endif
+
                 }
                 else if(typeBundle == "AssetBundle")
                 {
