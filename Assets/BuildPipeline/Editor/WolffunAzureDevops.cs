@@ -26,6 +26,11 @@ namespace Wolffun.BuildPipeline
         static string scriptDefinedSymbols = "";
         static string typeBundle = "Addressables";
         static string assetBundle = "false";
+        static string screenMode = "FullScreenWindow";
+        static string defaultScreenHeight = "1080";
+        static string defaultScreenWidth = "1920";
+        static string runInBackground = "false";
+        static string forceSingleInstance = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
@@ -51,7 +56,7 @@ namespace Wolffun.BuildPipeline
             string[] args = System.Environment.GetCommandLineArgs();
             //log all arguments joined by space
             Debug.Log(string.Join(" ", args));
-
+            
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -133,6 +138,30 @@ namespace Wolffun.BuildPipeline
                     xcodeBuildConfig = args[i + 1];
                 }
 #endif
+#if UNITY_STANDALONE
+
+                else if (args[i] == "-screenMode")
+                {
+                    screenMode = args[i + 1];
+                }
+                else if (args[i] == "-runInBackground")
+                {
+                    runInBackground = args[i + 1];
+                }
+                else if (args[i] == "-foreSingleInstance")
+                {
+                    forceSingleInstance = args[i + 1];
+                }
+                else if (args[i] == "-defaultScreenHeight")
+                {
+                    defaultScreenHeight = args[i + 1];
+                }
+                else if (args[i] == "-defaultScreenWidth")
+                {
+                    defaultScreenWidth = args[i + 1];
+                }
+                
+#endif            
                 else if (args[i] == "-il2cppCodegen")
                 {
                     il2cppCodegen = args[i + 1];
@@ -145,8 +174,35 @@ namespace Wolffun.BuildPipeline
             }
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+            PlayerSettings.resetResolutionOnWindowResize = true;
             //options
+#if UNITY_STANDALONE
 
+            switch (screenMode)
+            {
+                case "FullScreenWindow":
+                    PlayerSettings.fullScreenMode = FullScreenMode.FullScreenWindow;
+                    break;
+                case "MaximizedWindow":
+                    PlayerSettings.fullScreenMode = FullScreenMode.MaximizedWindow;
+                    break;
+                case "Windowed":
+                    PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+                    if (int.TryParse(defaultScreenHeight, out var defaultScreenHeightInt))
+                    {
+                        PlayerSettings.defaultScreenHeight = defaultScreenHeightInt;
+                    }
+                    if (int.TryParse(defaultScreenWidth, out var defaultScreenWidthInt))
+                    {
+                        PlayerSettings.defaultScreenWidth = defaultScreenWidthInt;
+                    }
+                    break;
+            }
+
+            PlayerSettings.runInBackground = runInBackground == "true";
+            
+            PlayerSettings.forceSingleInstance = forceSingleInstance == "true";
+#endif       
             switch (scriptingBackend)
             {
                 case "Mono":
@@ -570,9 +626,10 @@ namespace Wolffun.BuildPipeline
             }
             else
             {
-                // Nếu thư mục không tồn tại, tạo mới nó
+                // Nếu thư mục không tồn tại, tạo mới nój
                 Directory.CreateDirectory(folderPath);
             }
         }
+        
     } 
 }
