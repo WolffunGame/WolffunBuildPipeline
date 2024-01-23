@@ -320,7 +320,7 @@ namespace Wolffun.BuildPipeline
             {
                 case "true":
                     PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
-                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
 
                     EditorUserBuildSettings.buildAppBundle = true;
                     buildPlayerOptions.locationPathName =
@@ -339,7 +339,7 @@ namespace Wolffun.BuildPipeline
                     break;
                 case "false":
                     PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
-                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7;
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
 
                     EditorUserBuildSettings.buildAppBundle = false;
                     buildPlayerOptions.locationPathName =
