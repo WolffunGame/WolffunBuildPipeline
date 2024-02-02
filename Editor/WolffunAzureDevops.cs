@@ -31,6 +31,8 @@ namespace Wolffun.BuildPipeline
         static string defaultScreenWidth = "1920";
         static string runInBackground = "false";
         static string forceSingleInstance = "false";
+        static string addressableRule = "";
+        static string enableAddressableRule = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
@@ -475,7 +477,7 @@ namespace Wolffun.BuildPipeline
                 // ignored
             }
 
-
+            SetupAddressableRule();
             AssetDatabase.SaveAssets();
 #if UNITY_ANDROID
             Debug.Log("Android Bundle version code: " + PlayerSettings.Android.bundleVersionCode);
@@ -606,6 +608,22 @@ namespace Wolffun.BuildPipeline
             BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.AssetBundleStripUnityVersion, target);
         }
 
+        public static void SetupAddressableRule()
+        {
+            if (!string.IsNullOrEmpty(addressableRule))
+            {
+                if (enableAddressableRule == "true")
+                {
+                    var result = AssetDatabase.LoadAssetAtPath<AddressableImportSettings>(addressableRule);
+                    if (result)
+                    {
+                        result.rulesEnabled = false;
+                    }
+                }
+                return;
+            }
+            Debug.LogError("Addressable rule don't exist");
+        }
         private static void ClearFolder(string folderPath)
         {
             if (Directory.Exists(folderPath))
