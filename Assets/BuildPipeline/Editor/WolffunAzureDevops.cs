@@ -106,6 +106,14 @@ namespace Wolffun.BuildPipeline
                 {
                     assetBundle = args[i + 1];
                 }
+                else if(args[i] == "-addressableRule")
+                {
+                    addressableRule = args[i + 1];
+                }
+                else if(args[i] == "-enableAddressableRule")
+                {
+                    enableAddressableRule = args[i + 1];
+                }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
                 {
