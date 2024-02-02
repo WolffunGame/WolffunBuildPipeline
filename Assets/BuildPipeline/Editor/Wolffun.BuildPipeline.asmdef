@@ -2,7 +2,8 @@
     "name": "Wolffun.BuildPipeline",
     "rootNamespace": "Wolffun.BuildPipeline",
     "references": [
-        "Unity.Addressables.Editor"
+        "Unity.Addressables.Editor",
+        "Unity.AddressableImporter.Editor"
     ],
     "includePlatforms": [
         "Editor"
