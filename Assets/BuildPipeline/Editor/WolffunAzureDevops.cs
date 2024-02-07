@@ -140,6 +140,10 @@ namespace Wolffun.BuildPipeline
                 {
                     enableAddressableRule = args[i + 1];
                 }
+                else if(args[i] == "-buildServer")
+                {
+                    buildServer = args[i + 1];
+                }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
                 {
