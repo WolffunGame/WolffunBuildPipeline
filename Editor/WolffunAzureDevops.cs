@@ -58,7 +58,7 @@ namespace Wolffun.BuildPipeline
 #region Addressable
         public static void AddRessableBuild()
         {
- 
+            Debug.Log("Start build Addressable");
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
             {
