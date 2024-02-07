@@ -439,6 +439,7 @@ namespace Wolffun.BuildPipeline
             if (buildServer == "true")
             {
                 buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
+                buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
                 EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                 PlayerSettings.bundleVersion = appversion;
                 //linux output file
@@ -495,6 +496,7 @@ namespace Wolffun.BuildPipeline
                     break;
                 case "LinuxServer64":
                     buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
+                    buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
                     EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                     PlayerSettings.bundleVersion = appversion;
                     //linux output file
@@ -505,6 +507,7 @@ namespace Wolffun.BuildPipeline
                 //Windows Server
                 case "WindowsServer":
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+                    buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
                     EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                     PlayerSettings.bundleVersion = appversion;
                     //windows 64 bit output file
