@@ -58,11 +58,13 @@ namespace Wolffun.BuildPipeline
 #region Addressable
         public static void AddRessableBuild()
         {
+            
             Debug.Log("Start build Addressable");
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
             {
                 Debug.LogError("Can't find setting");
+                PowerShellAndBashMethod.RunErrorBash();
             }
             var mode = ScriptableObject.CreateInstance<BuildScriptsAzurePipeline>();
             var res = mode.BuildData<AddressablesPlayerBuildResult>(new AddressablesDataBuilderInput(settings));
@@ -70,6 +72,7 @@ namespace Wolffun.BuildPipeline
             if (!string.IsNullOrEmpty(res.Error))
             {
                 Debug.LogError(res.Error);
+                PowerShellAndBashMethod.RunErrorBash();
             }
         }
 #endregion
