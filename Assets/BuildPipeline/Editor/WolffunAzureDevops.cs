@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
 #if ADDRESSABLES_ENABLED 
 using UnityEditor.AddressableAssets.Settings;
@@ -34,6 +36,7 @@ namespace Wolffun.BuildPipeline
         static string forceSingleInstance = "false";
         static string addressableRule = "";
         static string enableAddressableRule = "false";
+        private static string buildServer = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
@@ -42,6 +45,7 @@ namespace Wolffun.BuildPipeline
         
         static string il2cppCodegen = "OptimizeSpeed";
         static string buildAddressables = "true";
+        
 
 #if UNITY_IOS
           static  string xcodeBuildConfig = "Release";
@@ -51,7 +55,25 @@ namespace Wolffun.BuildPipeline
            static string buildAppBundle = "true";
 #endif
         static string customScenesToBuild = "";
-
+#region Addressable
+        public static void AddRessableBuild()
+        {
+ 
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogError("Can't find setting");
+            }
+            var mode = ScriptableObject.CreateInstance<BuildScriptsAzurePipeline>();
+            var res = mode.BuildData<AddressablesPlayerBuildResult>(new AddressablesDataBuilderInput(settings));
+        
+            if (!string.IsNullOrEmpty(res.Error))
+            {
+                Debug.LogError(res.Error);
+            }
+        }
+#endregion
+#region BuildPlayer
         public static void PerformBuild()
         {
             //get commandline arguments -outputPath $(Build.BinariesDirectory)
@@ -244,22 +266,25 @@ namespace Wolffun.BuildPipeline
             {
                 if (typeBundle == "Addressables")
                 {
-                    Debug.Log("Start check Addressable");
-                    if (buildAddressables == "true")
-                    {
-                        Debug.Log("Start check Addressable: build addressable");
-                        //get AddressableAssetSettings
-                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                        settings.BuildAddressablesWithPlayerBuild =
-                            AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
-                    }
-                    else
-                    {
-                        Debug.Log("Start check Addressable: dont build addressable");
-                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                        settings.BuildAddressablesWithPlayerBuild =
-                            AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                    }
+                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                    settings.BuildAddressablesWithPlayerBuild =
+                        AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                    // Debug.Log("Start check Addressable");
+                    // if (buildAddressables == "true")
+                    // {
+                    //     Debug.Log("Start check Addressable: build addressable");
+                    //     //get AddressableAssetSettings
+                    //     var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                    //     settings.BuildAddressablesWithPlayerBuild =
+                    //         AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                    // }
+                    // else
+                    // {
+                    //     Debug.Log("Start check Addressable: dont build addressable");
+                    //     var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                    //     settings.BuildAddressablesWithPlayerBuild =
+                    //         AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                    // }
                 }
                 else if(typeBundle == "AssetBundle")
                 {
@@ -404,9 +429,19 @@ namespace Wolffun.BuildPipeline
                     break;
             }
 
-            //target
-            switch (buildTarget)
+            if (buildServer == "true")
             {
+                buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
+                EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+                PlayerSettings.bundleVersion = appversion;
+                //linux output file
+                buildPlayerOptions.locationPathName =
+                    Path.Combine(outputPath, outputFileName + "." + outputExtension);
+            }
+            else
+            { 
+                switch (buildTarget) 
+                {
                 case "Android":
                     buildPlayerOptions.target = BuildTarget.Android;
                     PlayerSettings.Android.bundleVersionCode = int.Parse(buildNumber);
@@ -473,8 +508,11 @@ namespace Wolffun.BuildPipeline
 
                 default:
                     buildPlayerOptions.target = BuildTarget.StandaloneWindows;
-                    break;
+                    break; 
+                } 
             }
+            //target
+            
 
             //disable logo unity
             try
@@ -486,6 +524,7 @@ namespace Wolffun.BuildPipeline
                 // ignored
             }
 
+            SetupAddressableRule();
             SetupAddressableRule();
             AssetDatabase.SaveAssets();
 #if UNITY_ANDROID
@@ -517,7 +556,6 @@ namespace Wolffun.BuildPipeline
 
             UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
         }
-
         public static void SetIl2CppCodeGeneration(string targetName, Il2CppCodeGeneration codeGeneration)
         {
 #if UNITY_2022_1_OR_NEWER
@@ -567,8 +605,6 @@ namespace Wolffun.BuildPipeline
             EditorUserBuildSettings.il2CppCodeGeneration = codeGeneration;
 #endif
         }
-
-
         public static ProjectBuildConfiguration GetBuildConfig()
         {
             //find build config
@@ -616,7 +652,6 @@ namespace Wolffun.BuildPipeline
             ClearFolder(outputPath);
             BuildPipeline.BuildAssetBundles(outputPath, BuildAssetBundleOptions.AssetBundleStripUnityVersion, target);
         }
-
         public static void SetupAddressableRule()
         {
             if (!string.IsNullOrEmpty(addressableRule))
@@ -657,6 +692,8 @@ namespace Wolffun.BuildPipeline
                 Directory.CreateDirectory(folderPath);
             }
         }
-        
+#endregion
+
+
     } 
 }
