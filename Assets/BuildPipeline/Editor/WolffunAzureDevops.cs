@@ -37,6 +37,7 @@ namespace Wolffun.BuildPipeline
         static string addressableRule = "";
         static string enableAddressableRule = "false";
         private static string buildServer = "false";
+        private static string buildManualAddressable = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
@@ -143,6 +144,10 @@ namespace Wolffun.BuildPipeline
                 else if(args[i] == "-buildServer")
                 {
                     buildServer = args[i + 1];
+                }
+                else if(args[i] == "-buildManualAddressable")
+                {
+                    buildManualAddressable = args[i + 1];
                 }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
@@ -273,25 +278,31 @@ namespace Wolffun.BuildPipeline
             {
                 if (typeBundle == "Addressables")
                 {
-                    var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                    settings.BuildAddressablesWithPlayerBuild =
-                        AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                    // Debug.Log("Start check Addressable");
-                    // if (buildAddressables == "true")
-                    // {
-                    //     Debug.Log("Start check Addressable: build addressable");
-                    //     //get AddressableAssetSettings
-                    //     var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                    //     settings.BuildAddressablesWithPlayerBuild =
-                    //         AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
-                    // }
-                    // else
-                    // {
-                    //     Debug.Log("Start check Addressable: dont build addressable");
-                    //     var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
-                    //     settings.BuildAddressablesWithPlayerBuild =
-                    //         AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                    // }
+                    if (buildManualAddressable == "true")
+                    {
+                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                        settings.BuildAddressablesWithPlayerBuild =
+                            AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
+                    }
+                    else
+                    {
+                        Debug.Log("Start check Addressable");
+                        if (buildAddressables == "true")
+                        {
+                            Debug.Log("Start check Addressable: build addressable");
+                            //get AddressableAssetSettings
+                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                            settings.BuildAddressablesWithPlayerBuild =
+                                AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                        }
+                        else
+                        {
+                            Debug.Log("Start check Addressable: dont build addressable");
+                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                            settings.BuildAddressablesWithPlayerBuild =
+                                AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                        }  
+                    }
                 }
                 else if(typeBundle == "AssetBundle")
                 {
