@@ -429,10 +429,7 @@ namespace Wolffun.BuildPipeline
             {
                 case "Debug":
                 {
-                    buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging;
-                    EditorUserBuildSettings.development = true;
-                    EditorUserBuildSettings.allowDebugging = true;
-                    EditorUserBuildSettings.connectProfiler = true;
+                    buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging | BuildOptions.ConnectWithProfiler;
                 }
                     break;
                 case "Release":
