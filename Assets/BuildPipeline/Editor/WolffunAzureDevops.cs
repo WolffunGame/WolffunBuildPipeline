@@ -75,8 +75,12 @@ namespace Wolffun.BuildPipeline
         
             if (!string.IsNullOrEmpty(res.Error))
             {
-                Debug.LogError(res.Error);
-                PowerShellAndBashMethod.RunErrorBash();
+                Debug.LogError("Addressable build failed");
+                //PowerShellAndBashMethod.RunErrorBash();
+            }
+            else
+            {
+                Debug.Log("Addressable content successfully built");
             }
         }
 #endregion
