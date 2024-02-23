@@ -57,6 +57,9 @@ namespace Wolffun.BuildPipeline
 #endif
         static string customScenesToBuild = "";
 #region Addressable
+        /// <summary>
+        /// This is method that using to build manual addressable
+        /// </summary>
         public static void AddRessableBuild()
         {
             
@@ -421,7 +424,12 @@ namespace Wolffun.BuildPipeline
             switch (configuration)
             {
                 case "Debug":
+                {
                     buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging;
+                    EditorUserBuildSettings.development = true;
+                    EditorUserBuildSettings.allowDebugging = true;
+                    EditorUserBuildSettings.connectProfiler = true;
+                }
                     break;
                 case "Release":
                 case "Development":
@@ -447,6 +455,7 @@ namespace Wolffun.BuildPipeline
                     break;
             }
 
+            // Check Build sever
             if (buildServer == "true")
             {
                 buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
