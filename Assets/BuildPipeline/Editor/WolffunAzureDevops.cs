@@ -381,8 +381,10 @@ namespace Wolffun.BuildPipeline
             {
                 case "true":
                     PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
-                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidAchitecture.ARMv7;
-
+                    //PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidAchitecture.ARMv7;
+                    AndroidArchitecture aac = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+                    PlayerSettings.Android.targetArchitectures = aac;
+                    Debug.Log(aac);
                     EditorUserBuildSettings.buildAppBundle = true;
                     buildPlayerOptions.locationPathName =
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
