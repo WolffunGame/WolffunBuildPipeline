@@ -384,8 +384,8 @@ namespace Wolffun.BuildPipeline
                     //PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidAchitecture.ARMv7;
                     AndroidArchitecture aac = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
                     PlayerSettings.Android.targetArchitectures = aac;
-                    Debug.Log(aac);
                     EditorUserBuildSettings.buildAppBundle = true;
+                    Debug.Log("build_arm_x64" +aac);
                     buildPlayerOptions.locationPathName =
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
