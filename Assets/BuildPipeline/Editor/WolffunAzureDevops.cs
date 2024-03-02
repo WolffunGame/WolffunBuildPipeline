@@ -2,10 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+#if ADDRESSABLES_ENABLED
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
-using UnityEditor.AddressableAssets.Settings;
-#if ADDRESSABLES_ENABLED 
 using UnityEditor.AddressableAssets.Settings;
 #endif
 using UnityEditor.Build;
@@ -42,11 +41,11 @@ namespace Wolffun.BuildPipeline
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
 #endif
-
-
+        
+        
         static string il2cppCodegen = "OptimizeSpeed";
         static string buildAddressables = "true";
-
+        
 
 #if UNITY_IOS
           static  string xcodeBuildConfig = "Release";
@@ -56,13 +55,15 @@ namespace Wolffun.BuildPipeline
            static string buildAppBundle = "true";
 #endif
         static string customScenesToBuild = "";
-        #region Addressable
+#region Addressable
         /// <summary>
         /// This is method that using to build manual addressable
         /// </summary>
+
+
         public static void AddRessableBuild()
         {
-
+            #if ADDRESSABLES_ENABLED 
             Debug.Log("Start build Addressable");
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
@@ -72,7 +73,7 @@ namespace Wolffun.BuildPipeline
             }
             var mode = ScriptableObject.CreateInstance<BuildScriptsAzurePipeline>();
             var res = mode.BuildData<AddressablesPlayerBuildResult>(new AddressablesDataBuilderInput(settings));
-
+        
             if (!string.IsNullOrEmpty(res.Error))
             {
                 Debug.LogError("Addressable build failed");
@@ -82,9 +83,11 @@ namespace Wolffun.BuildPipeline
             {
                 Debug.Log("Addressable content successfully built");
             }
+#endif
         }
-        #endregion
-        #region BuildPlayer
+
+#endregion
+#region BuildPlayer
         public static void PerformBuild()
         {
             //get commandline arguments -outputPath $(Build.BinariesDirectory)
@@ -92,7 +95,7 @@ namespace Wolffun.BuildPipeline
             string[] args = System.Environment.GetCommandLineArgs();
             //log all arguments joined by space
             Debug.Log(string.Join(" ", args));
-
+            
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -132,27 +135,27 @@ namespace Wolffun.BuildPipeline
                 {
                     outputExtension = args[i + 1];
                 }
-                else if (args[i] == "-typeBundle")
+                else if(args[i] == "-typeBundle")
                 {
                     typeBundle = args[i + 1];
                 }
-                else if (args[i] == "-assetBundle")
+                else if(args[i] == "-assetBundle")
                 {
                     assetBundle = args[i + 1];
                 }
-                else if (args[i] == "-addressableRule")
+                else if(args[i] == "-addressableRule")
                 {
                     addressableRule = args[i + 1];
                 }
-                else if (args[i] == "-enableAddressableRule")
+                else if(args[i] == "-enableAddressableRule")
                 {
                     enableAddressableRule = args[i + 1];
                 }
-                else if (args[i] == "-buildServer")
+                else if(args[i] == "-buildServer")
                 {
                     buildServer = args[i + 1];
                 }
-                else if (args[i] == "-buildManualAddressable")
+                else if(args[i] == "-buildManualAddressable")
                 {
                     buildManualAddressable = args[i + 1];
                 }
@@ -285,11 +288,14 @@ namespace Wolffun.BuildPipeline
             {
                 if (typeBundle == "Addressables")
                 {
+
+#if ADDRESSABLES_ENABLED
+
                     if (buildManualAddressable == "true")
                     {
                         var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                         settings.BuildAddressablesWithPlayerBuild =
-                            AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                            AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
                     }
                     else
                     {
@@ -308,20 +314,21 @@ namespace Wolffun.BuildPipeline
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                        }
+                        }  
                     }
+#endif
                 }
-                else if (typeBundle == "AssetBundle")
+                else if(typeBundle == "AssetBundle")
                 {
                     if (assetBundle == "true")
                     {
-                        BuildBundle();
+                        BuildBundle();  
                     }
                 }
-
+                
             }
-            catch (Exception)
-            {
+            catch (Exception) 
+            { 
                 // ignored
             }
 
@@ -431,9 +438,9 @@ namespace Wolffun.BuildPipeline
             switch (configuration)
             {
                 case "Debug":
-                    {
-                        buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging | BuildOptions.ConnectWithProfiler;
-                    }
+                {
+                    buildPlayerOptions.options |= BuildOptions.Development | BuildOptions.AllowDebugging | BuildOptions.ConnectWithProfiler;
+                }
                     break;
                 case "Release":
                 case "Development":
@@ -463,7 +470,7 @@ namespace Wolffun.BuildPipeline
             if (buildServer == "true")
             {
                 buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
-                buildPlayerOptions.subtarget = (int)StandaloneBuildSubtarget.Server;
+                buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
                 EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                 PlayerSettings.bundleVersion = appversion;
                 //linux output file
@@ -471,82 +478,82 @@ namespace Wolffun.BuildPipeline
                     Path.Combine(outputPath, outputFileName + "." + outputExtension);
             }
             else
-            {
-                switch (buildTarget)
+            { 
+                switch (buildTarget) 
                 {
-                    case "Android":
-                        buildPlayerOptions.target = BuildTarget.Android;
-                        PlayerSettings.Android.bundleVersionCode = int.Parse(buildNumber);
-                        PlayerSettings.bundleVersion = appversion;
-                        break;
-                    case "iOS":
-                        buildPlayerOptions.target = BuildTarget.iOS;
-                        PlayerSettings.iOS.buildNumber = buildNumber;
-                        PlayerSettings.bundleVersion = appversion;
-                        break;
-                    case "StandaloneWindows":
-                        buildPlayerOptions.target = BuildTarget.StandaloneWindows;
-                        PlayerSettings.bundleVersion = appversion;
-                        //windows 32 bit output file
-                        buildPlayerOptions.locationPathName =
-                            Path.Combine(outputPath, outputFileName + "." + outputExtension);
-                        break;
-                    case "StandaloneWindows64":
-                        buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
-                        PlayerSettings.bundleVersion = appversion;
-                        //windows 64 bit output file
-                        buildPlayerOptions.locationPathName =
-                            Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                case "Android":
+                    buildPlayerOptions.target = BuildTarget.Android;
+                    PlayerSettings.Android.bundleVersionCode = int.Parse(buildNumber);
+                    PlayerSettings.bundleVersion = appversion;
+                    break;
+                case "iOS":
+                    buildPlayerOptions.target = BuildTarget.iOS;
+                    PlayerSettings.iOS.buildNumber = buildNumber;
+                    PlayerSettings.bundleVersion = appversion;
+                    break;
+                case "StandaloneWindows":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 32 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                case "StandaloneWindows64":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 64 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
-                        break;
-                    case "StandaloneOSX":
-                        buildPlayerOptions.target = BuildTarget.StandaloneOSX;
-                        PlayerSettings.macOS.buildNumber = buildNumber;
-                        PlayerSettings.bundleVersion = appversion;
-                        //mac output file
-                        buildPlayerOptions.locationPathName =
-                            Path.Combine(outputPath, outputFileName + "." + outputExtension);
-                        break;
-                    case "WebGL":
-                        buildPlayerOptions.target = BuildTarget.WebGL;
-                        PlayerSettings.bundleVersion = appversion;
-                        PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
-                        PlayerSettings.WebGL.memorySize = 512;
-                        PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
-                        PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
-                        //webgl output file
-                        buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
+                    break;
+                case "StandaloneOSX":
+                    buildPlayerOptions.target = BuildTarget.StandaloneOSX;
+                    PlayerSettings.macOS.buildNumber = buildNumber;
+                    PlayerSettings.bundleVersion = appversion;
+                    //mac output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                case "WebGL":
+                    buildPlayerOptions.target = BuildTarget.WebGL;
+                    PlayerSettings.bundleVersion = appversion;
+                    PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+                    PlayerSettings.WebGL.memorySize = 512;
+                    PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
+                    PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
+                    //webgl output file
+                    buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
 
-                        break;
-                    case "LinuxServer64":
-                        buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
-                        buildPlayerOptions.subtarget = (int)StandaloneBuildSubtarget.Server;
-                        EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
-                        PlayerSettings.bundleVersion = appversion;
-                        //linux output file
-                        buildPlayerOptions.locationPathName =
-                            Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                case "LinuxServer64":
+                    buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
+                    buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
+                    EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+                    PlayerSettings.bundleVersion = appversion;
+                    //linux output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
-                        break;
-                    //Windows Server
-                    case "WindowsServer":
-                        buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
-                        buildPlayerOptions.subtarget = (int)StandaloneBuildSubtarget.Server;
-                        EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
-                        PlayerSettings.bundleVersion = appversion;
-                        //windows 64 bit output file
-                        buildPlayerOptions.locationPathName =
-                            Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                //Windows Server
+                case "WindowsServer":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+                    buildPlayerOptions.subtarget  = (int)StandaloneBuildSubtarget.Server;
+                    EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 64 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
 
-                        break;
+                    break;
 
-                    default:
-                        buildPlayerOptions.target = BuildTarget.StandaloneWindows;
-                        break;
-                }
+                default:
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows;
+                    break; 
+                } 
             }
             //target
-
+            
 
             //disable logo unity
             try
@@ -557,8 +564,6 @@ namespace Wolffun.BuildPipeline
             {
                 // ignored
             }
-
-            SetupAddressableRule();
             SetupAddressableRule();
             AssetDatabase.SaveAssets();
 #if UNITY_ANDROID
@@ -688,6 +693,7 @@ namespace Wolffun.BuildPipeline
         }
         public static void SetupAddressableRule()
         {
+#if ADDRESSABLES_ENABLED 
             if (!string.IsNullOrEmpty(addressableRule))
             {
                 if (enableAddressableRule == "true")
@@ -701,6 +707,7 @@ namespace Wolffun.BuildPipeline
                 return;
             }
             Debug.LogError("Addressable rule don't exist");
+#endif
         }
         private static void ClearFolder(string folderPath)
         {
@@ -726,8 +733,8 @@ namespace Wolffun.BuildPipeline
                 Directory.CreateDirectory(folderPath);
             }
         }
-        #endregion
+#endregion
 
 
-    }
+    } 
 }
