@@ -369,8 +369,9 @@ namespace Wolffun.BuildPipeline
                 Debug.Log("Skip append build");
             }
 #endif
-            Debug.Log("buildAppBundle: " + buildAppBundle);
+
 #if UNITY_ANDROID
+            Debug.Log("buildAppBundle: " + buildAppBundle);
             Debug.Log("UNITY_ANDROID: android");
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.Android.useCustomKeystore = false;

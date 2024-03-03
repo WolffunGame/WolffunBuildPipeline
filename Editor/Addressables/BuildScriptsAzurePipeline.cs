@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+#if ADDRESSABLES_ENABLED
 using UnityEditor.AddressableAssets.Build.DataBuilders;
 using UnityEditor.AddressableAssets.Settings;
+#endif
 using UnityEngine;
-
+#if ADDRESSABLES_ENABLED
 [CreateAssetMenu(fileName = "BuildScriptsAzurePipeline.asset", menuName = "Addressables/Custom Build/BuildScriptsAzurePipeline")]
+
 public class BuildScriptsAzurePipeline : BuildScriptPackedMode
 {
     protected override string ProcessGroup(AddressableAssetGroup assetGroup, AddressableAssetsBuildContext aaContext)
@@ -28,3 +31,4 @@ public class BuildScriptsAzurePipeline : BuildScriptPackedMode
         return string.Empty;
     }
 }
+#endif
