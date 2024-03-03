@@ -1,10 +1,9 @@
 {
   "name": "com.wolffun.buildpipeline",
   "displayName": "Wolffun Build Pipeline",
-  "version": "1.4.2",
+  "version": "1.5.6",
   "unity": "2021.3",
   "dependencies": {
-    "com.littlebigfun.addressable-importer": "https://github.com/WolffunGame/unity-addressable-importer.git#0.16.1-wolffun"
   },
   "type": "tool"
 }
