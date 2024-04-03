@@ -40,9 +40,10 @@ namespace Wolffun.BuildPipeline
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";
+           static string exportProject = "false";
 #endif
-        
-        
+
+
         static string il2cppCodegen = "OptimizeSpeed";
         static string buildAddressables = "true";
         
@@ -171,6 +172,10 @@ namespace Wolffun.BuildPipeline
                 else if (args[i] == "-androidCreateSymbols")
                 {
                     androidCreateSymbols = args[i + 1];
+                }
+                else if (args[i] == "-exportProject")
+                {
+                    exportProject = args[i + 1];
                 }
 #endif
                 else if (args[i] == "-scriptDefinedSymbols")
@@ -594,7 +599,24 @@ namespace Wolffun.BuildPipeline
             }
 
 
-            UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+            //UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+            switch (exportProject)
+            {
+                case "false":
+                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+                    Debug.Log("Không chạy vào case export");
+                    break;
+#if UNITY_ANDROID
+                case "true":
+                    ExportProject();
+                    Debug.Log("Đã chạy vào case export");
+                    break;
+#endif
+                default:
+                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+                    Debug.Log("Không chạy vào case export");
+                    break;
+            }
         }
         public static void SetIl2CppCodeGeneration(string targetName, Il2CppCodeGeneration codeGeneration)
         {
@@ -734,8 +756,40 @@ namespace Wolffun.BuildPipeline
                 Directory.CreateDirectory(folderPath);
             }
         }
-#endregion
+        public static void ExportProject()
+        {
+            // Tạo ra một tên thư mục mới dựa trên thời gian build
+            string exportPath = "android";
 
-
-    } 
+            if (Directory.Exists(exportPath))
+            {
+                try
+                {
+                    Directory.Delete(exportPath, true);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Failed to delete existing directory: {e.Message}");
+                    return; // Dừng việc xuất bản dự án nếu không thể xóa thư mục
+                }
+            }
+            // Tạo mới thư mục đích
+            try
+            {
+                Directory.CreateDirectory(exportPath);
+                Debug.Log(exportPath + "tạo link thành công");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to create directory: {e.Message}");
+                return; // Dừng việc xuất bản dự án nếu không thể tạo mới thư mục
+            }
+            // Thực hiện xuất bản dự án
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
+            EditorUserBuildSettings.buildAppBundle = true;
+            BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, exportPath, BuildTarget.Android, BuildOptions.None);
+        }
+        #endregion
+    }
+    
 }
