@@ -603,7 +603,9 @@ namespace Wolffun.BuildPipeline
             switch (exportProject)
             {
                 case "false":
-                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+                    EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+                    EditorUserBuildSettings.buildAppBundle = false;
+                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
                     Debug.Log("Không chạy vào case export");
                     break;
 #if UNITY_ANDROID
@@ -613,6 +615,8 @@ namespace Wolffun.BuildPipeline
                     break;
 #endif
                 default:
+                    EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+                    EditorUserBuildSettings.buildAppBundle = false;
                     UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
                     Debug.Log("Không chạy vào case export");
                     break;
@@ -756,6 +760,7 @@ namespace Wolffun.BuildPipeline
                 Directory.CreateDirectory(folderPath);
             }
         }
+       // [MenuItem("Export/Export Project and App Bundle")]
         public static void ExportProject()
         {
             // Tạo ra một tên thư mục mới dựa trên thời gian build
