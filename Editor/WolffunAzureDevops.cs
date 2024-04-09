@@ -36,11 +36,11 @@ namespace Wolffun.BuildPipeline
         static string addressableRule = "";
         static string enableAddressableRule = "false";
         private static string buildServer = "false";
+        static string exportProject = "false";
         private static string buildManualAddressable = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
-           static string androidCreateSymbols = "false";
-           static string exportProject = "false";
+           static string androidCreateSymbols = "false";         
 #endif
 
 
