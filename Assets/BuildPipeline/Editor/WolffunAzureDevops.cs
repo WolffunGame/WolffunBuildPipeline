@@ -604,7 +604,6 @@ namespace Wolffun.BuildPipeline
             {
                 case "false":
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
-                    EditorUserBuildSettings.buildAppBundle = false;
                     UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
                     Debug.Log("Không chạy vào case export");
                     break;
@@ -616,7 +615,6 @@ namespace Wolffun.BuildPipeline
 #endif
                 default:
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
-                    EditorUserBuildSettings.buildAppBundle = false;
                     UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
                     Debug.Log("Không chạy vào case export");
                     break;
