@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: ProjectBuildConfiguration
   m_EditorClassIdentifier: 
   environment: 0
-  stagingScriptingDefineSymbols: []
-  productionScriptingDefineSymbols: []
-  uatScriptingDefineSymbols: []
+  stagingScriptingDefineSymbols:
+  - ADDRESSABLES_ENABLED
+  productionScriptingDefineSymbols:
+  - ADDRESSABLES_ENABLED
+  uatScriptingDefineSymbols:
+  - ADDRESSABLES_ENABLED
