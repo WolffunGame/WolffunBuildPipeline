@@ -787,7 +787,11 @@ PlayerSettings:
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: ADDRESSABLES_ENABLED
+    Standalone: ADDRESSABLES_ENABLED
+    WebGL: ADDRESSABLES_ENABLED
+    iPhone: ADDRESSABLES_ENABLED
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
