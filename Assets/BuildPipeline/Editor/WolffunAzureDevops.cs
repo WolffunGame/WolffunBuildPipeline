@@ -160,6 +160,10 @@ namespace Wolffun.BuildPipeline
                 {
                     buildManualAddressable = args[i + 1];
                 }
+                else if (args[i] == "-exportProject")
+                {
+                    exportProject = args[i + 1];
+                }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
                 {
@@ -172,10 +176,6 @@ namespace Wolffun.BuildPipeline
                 else if (args[i] == "-androidCreateSymbols")
                 {
                     androidCreateSymbols = args[i + 1];
-                }
-                else if (args[i] == "-exportProject")
-                {
-                    exportProject = args[i + 1];
                 }
 #endif
                 else if (args[i] == "-scriptDefinedSymbols")
@@ -605,14 +605,11 @@ namespace Wolffun.BuildPipeline
                 case "false":
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
                     UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
-                    Debug.Log("Không chạy vào case export");
                     break;
-#if UNITY_ANDROID
                 case "true":
-                    ExportProject();
-                    Debug.Log("Đã chạy vào case export");
+                    ExportProject();             
                     break;
-#endif
+
                 default:
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
                     UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
@@ -761,9 +758,7 @@ namespace Wolffun.BuildPipeline
        // [MenuItem("Export/Export Project and App Bundle")]
         public static void ExportProject()
         {
-            // Tạo ra một tên thư mục mới dựa trên thời gian build
             string exportPath = "android";
-
             if (Directory.Exists(exportPath))
             {
                 try
@@ -773,7 +768,7 @@ namespace Wolffun.BuildPipeline
                 catch (Exception e)
                 {
                     Debug.LogError($"Failed to delete existing directory: {e.Message}");
-                    return; // Dừng việc xuất bản dự án nếu không thể xóa thư mục
+                    return; // 
                 }
             }
             // Tạo mới thư mục đích
@@ -785,9 +780,8 @@ namespace Wolffun.BuildPipeline
             catch (Exception e)
             {
                 Debug.LogError($"Failed to create directory: {e.Message}");
-                return; // Dừng việc xuất bản dự án nếu không thể tạo mới thư mục
+                return;
             }
-            // Thực hiện xuất bản dự án
             EditorUserBuildSettings.exportAsGoogleAndroidProject = true;
             EditorUserBuildSettings.buildAppBundle = true;
             BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, exportPath, BuildTarget.Android, BuildOptions.None);
