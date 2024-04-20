@@ -720,11 +720,11 @@ namespace Wolffun.BuildPipeline
             {
                 if (enableAddressableRule == "true")
                 {
-                    var result = AssetDatabase.LoadAssetAtPath<AddressableImportSettings>(addressableRule);
-                    if (result)
-                    {
-                        result.rulesEnabled = false;
-                    }
+                 //   var result = AssetDatabase.LoadAssetAtPath<AddressableImportSettings>(addressableRule);
+                    //if (result)
+                    //{
+                    //    result.rulesEnabled = false;
+                    //}
                 }
                 return;
             }
