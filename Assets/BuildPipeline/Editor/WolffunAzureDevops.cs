@@ -2,11 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-#if ADDRESSABLES_ENABLED
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
-#endif
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEditor.Build.Reporting;
@@ -295,12 +293,11 @@ namespace Wolffun.BuildPipeline
                 {
                     Debug.Log("Check build Addressable");
 
-#if ADDRESSABLES_ENABLED
 
                     if (buildManualAddressable == "true")
                     {
                         Debug.Log("Do not build Addressable");
-                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                        var settings = AddressableAssetSettingsDefaultObject.Settings;
                         settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
                     }
@@ -311,19 +308,18 @@ namespace Wolffun.BuildPipeline
                         {
                             Debug.Log("Start check Addressable: build addressable");
                             //get AddressableAssetSettings
-                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                            var settings = AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
                         }
                         else
                         {
                             Debug.Log("Start check Addressable: dont build addressable");
-                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+                            var settings = AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
                         }  
                     }
-#endif
                 }
                 else if(typeBundle == "AssetBundle")
                 {

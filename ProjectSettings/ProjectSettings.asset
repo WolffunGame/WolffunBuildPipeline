@@ -163,6 +163,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.Wolffun.AzureBuildPipeline
     Standalone: com.DefaultCompany.2DProject
+    iPhone: com.Wolffun.AzureBuildPipeline
   buildNumber:
     Standalone: 0
     VisionOS: 0
@@ -788,10 +789,10 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: ADDRESSABLES_ENABLED
-    Standalone: ADDRESSABLES_ENABLED
-    WebGL: ADDRESSABLES_ENABLED
-    iPhone: ADDRESSABLES_ENABLED
+    Android: 
+    Standalone: 
+    WebGL: 
+    iPhone: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
