@@ -297,7 +297,7 @@ namespace Wolffun.BuildPipeline
                     if (buildManualAddressable == "true")
                     {
                         Debug.Log("Do not build Addressable");
-                        var settings = AddressableAssetSettingsDefaultObject.Settings;
+                        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                         settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
                     }
@@ -308,14 +308,14 @@ namespace Wolffun.BuildPipeline
                         {
                             Debug.Log("Start check Addressable: build addressable");
                             //get AddressableAssetSettings
-                            var settings = AddressableAssetSettingsDefaultObject.Settings;
+                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
                         }
                         else
                         {
                             Debug.Log("Start check Addressable: dont build addressable");
-                            var settings = AddressableAssetSettingsDefaultObject.Settings;
+                            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
                         }  
