@@ -524,7 +524,7 @@ namespace Wolffun.BuildPipeline
                     PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
                     PlayerSettings.WebGL.memorySize = 512;
                     PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
-                    PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.None;
+                    PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
                     //webgl output file
                     buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
 
