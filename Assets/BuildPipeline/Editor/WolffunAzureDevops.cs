@@ -531,9 +531,9 @@ namespace Wolffun.BuildPipeline
                 case "WebGL":
                     buildPlayerOptions.target = BuildTarget.WebGL;
                     PlayerSettings.bundleVersion = appversion;
-                    PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
-                    PlayerSettings.WebGL.memorySize = 512;
-                    PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
+                    //PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+                    //PlayerSettings.WebGL.memorySize = 512;
+                    //PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
                     //PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
                     //webgl output file
                     buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
