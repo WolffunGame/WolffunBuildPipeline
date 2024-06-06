@@ -529,6 +529,7 @@ namespace Wolffun.BuildPipeline
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
                     break;
                 case "WebGL":
+                    Debug.Log("Build WebGL");
                     buildPlayerOptions.target = BuildTarget.WebGL;
                     PlayerSettings.bundleVersion = appversion;
                     //PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
