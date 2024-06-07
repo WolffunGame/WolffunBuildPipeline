@@ -2,11 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-#if ADDRESSABLES_ENABLED
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Settings;
-#endif
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEditor.Build.Reporting;
@@ -64,7 +62,6 @@ namespace Wolffun.BuildPipeline
 
         public static void AddRessableBuild()
         {
-#if ADDRESSABLES_ENABLED
             Debug.Log("Start build Addressable");
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
@@ -84,7 +81,6 @@ namespace Wolffun.BuildPipeline
             {
                 Debug.Log("Addressable content successfully built");
             }
-#endif
         }
 
 #endregion
@@ -298,12 +294,10 @@ namespace Wolffun.BuildPipeline
                     if (buildManualAddressable == "true")
                     {
 
-#if ADDRESSABLES_ENABLED
                         Debug.Log("Do not build Addressable");
                         var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                         settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
-#endif
 
                     }
                     else
@@ -311,22 +305,18 @@ namespace Wolffun.BuildPipeline
                         Debug.Log("Start check Addressable");
                         if (buildAddressables == "true")
                         {
-#if ADDRESSABLES_ENABLED
                             Debug.Log("Start check Addressable: build addressable");
                             //get AddressableAssetSettings
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
-#endif
                         }
                         else
                         {
-#if ADDRESSABLES_ENABLED
                             Debug.Log("Start check Addressable: dont build addressable");
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-#endif
                         }
                     }
                 }
