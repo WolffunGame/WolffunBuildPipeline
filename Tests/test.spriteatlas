@@ -25,24 +25,24 @@ SpriteAtlas:
       m_BuildTarget: Android
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
-      m_TextureFormat: 56
+      m_TextureFormat: 50
       m_TextureCompression: 1
       m_CompressionQuality: 50
       m_CrunchedCompression: 0
       m_AllowsAlphaSplitting: 0
-      m_Overridden: 1
+      m_Overridden: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     - serializedVersion: 3
       m_BuildTarget: iPhone
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
-      m_TextureFormat: 55
+      m_TextureFormat: 49
       m_TextureCompression: 1
       m_CompressionQuality: 50
       m_CrunchedCompression: 0
       m_AllowsAlphaSplitting: 0
-      m_Overridden: 1
+      m_Overridden: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     - serializedVersion: 3
@@ -61,12 +61,12 @@ SpriteAtlas:
       m_BuildTarget: WebGL
       m_MaxTextureSize: 2048
       m_ResizeAlgorithm: 0
-      m_TextureFormat: 57
+      m_TextureFormat: 51
       m_TextureCompression: 1
       m_CompressionQuality: 50
       m_CrunchedCompression: 0
       m_AllowsAlphaSplitting: 0
-      m_Overridden: 1
+      m_Overridden: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
@@ -89,16 +89,16 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 9749e311c9efcda4e9f7bbe9a4c0fcb0, type: 3}
   - {fileID: 21300000, guid: 3bdb5ef1152c8a74491b41efd7794736, type: 3}
   - {fileID: 21300000, guid: 216034035ce900945821b00012acbbe5, type: 3}
-  - {fileID: 21300000, guid: 6b8f6237b6349cd41b889396e1737a74, type: 3}
-  - {fileID: 21300000, guid: 2a02dada29505be4e96a788cb93ed0a1, type: 3}
-  - {fileID: 21300000, guid: c55d6ceb978c4d340a79c36f771f764b, type: 3}
+  - {fileID: 21300000, guid: fb23cb833321c82409b351be7ca685e9, type: 3}
+  - {fileID: 21300000, guid: f34431b63bdfd76489b12820d949faee, type: 3}
+  - {fileID: 21300000, guid: f15e210972eafb145aa93c7a12cb584e, type: 3}
   m_PackedSpriteNamesToIndex:
   - CLIMAX_PLAYING_Small_Blind
   - CLIMAX_PLAYING_Fold
   - CLIMAX_PLAYING_Raise
-  - CLIMAX_PLAYING_Big_Blind
   - CLIMAX_PLAYING_Check
   - CLIMAX_PLAYING_Call
+  - CLIMAX_PLAYING_Big_Blind
   m_RenderDataMap: {}
   m_Tag: test
   m_IsVariant: 0
