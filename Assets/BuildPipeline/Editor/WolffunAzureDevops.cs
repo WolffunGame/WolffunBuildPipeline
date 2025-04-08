@@ -339,7 +339,7 @@ namespace Wolffun.BuildPipeline
             var path = outputPath;
             buildPlayerOptions.locationPathName = path;
             var b = UnityEditor.BuildPipeline.BuildCanBeAppended(BuildTarget.iOS, path);
-            PlayerSettings.stripEngineCode = true;
+            PlayerSettings.stripEngineCode = false;
             PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.iOS, ManagedStrippingLevel.Low);
 
             if(xcodeBuildConfig == "Release")
