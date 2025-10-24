@@ -259,6 +259,7 @@ namespace Wolffun.BuildPipeline
             PlayerSettings.runInBackground = runInBackground == "true";
             
             PlayerSettings.forceSingleInstance = forceSingleInstance == "true";
+            bool needBuildAddressable = false;
 #endif
             switch (scriptingBackend)
             {
@@ -327,9 +328,10 @@ namespace Wolffun.BuildPipeline
                                     Debug.Log($"Fail to override ActivePlayerDataBuilderIndex to index {overrideBuilderIndex}, index not valid");
                                 }
                             }
-                            
+
+                            needBuildAddressable = true;
                             settings.BuildAddressablesWithPlayerBuild =
-                                AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
+                                AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
                         }
                         else
                         {
@@ -615,6 +617,14 @@ namespace Wolffun.BuildPipeline
                 Debug.LogError("Error parsing custom scenes to build: " + e.Message);
                 buildPlayerOptions.scenes =
                     EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
+            }
+
+            if (needBuildAddressable)
+            {
+                Debug.Log("Build Addressable");
+                AddressableAssetSettings.BuildPlayerContent();
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
             }
 
 
