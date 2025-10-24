@@ -229,6 +229,7 @@ namespace Wolffun.BuildPipeline
                 }
             }
 
+            var config = GetBuildConfig();
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
             PlayerSettings.resetResolutionOnWindowResize = true;
             //options
@@ -308,6 +309,25 @@ namespace Wolffun.BuildPipeline
                             Debug.Log("Start check Addressable: build addressable");
                             //get AddressableAssetSettings
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+
+                            var overrideBuilderIndex = config.GetOverrideAddressableBuilderIndex(configuration);
+                            
+                            if(overrideBuilderIndex != -1)
+                            {
+                                Debug.Log($"Prepare to override ActivePlayerDataBuilderIndex to index {overrideBuilderIndex}");
+                                var dataBuilder = settings.GetDataBuilder(overrideBuilderIndex);
+
+                                if (dataBuilder != null)
+                                {
+                                    Debug.Log($"Success override ActivePlayerDataBuilderIndex to index {overrideBuilderIndex}");
+                                    settings.ActivePlayerDataBuilderIndex = overrideBuilderIndex;
+                                }
+                                else
+                                {
+                                    Debug.Log($"Fail to override ActivePlayerDataBuilderIndex to index {overrideBuilderIndex}, index not valid");
+                                }
+                            }
+                            
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
                         }
@@ -432,7 +452,7 @@ namespace Wolffun.BuildPipeline
 
             Debug.Log("output: " + buildPlayerOptions.locationPathName);
 #endif
-            var config = GetBuildConfig();
+            
             if (!config)
             {
                 Debug.LogError("Cannot find cloud build config");
