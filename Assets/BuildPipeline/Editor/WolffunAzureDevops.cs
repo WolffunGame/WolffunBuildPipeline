@@ -230,6 +230,7 @@ namespace Wolffun.BuildPipeline
             }
 
             var config = GetBuildConfig();
+            bool needBuildAddressable = false;
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
             PlayerSettings.resetResolutionOnWindowResize = true;
             //options
@@ -259,7 +260,6 @@ namespace Wolffun.BuildPipeline
             PlayerSettings.runInBackground = runInBackground == "true";
             
             PlayerSettings.forceSingleInstance = forceSingleInstance == "true";
-            bool needBuildAddressable = false;
 #endif
             switch (scriptingBackend)
             {
