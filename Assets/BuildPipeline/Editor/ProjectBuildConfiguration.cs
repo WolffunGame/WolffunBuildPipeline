@@ -14,6 +14,13 @@ namespace Wolffun.BuildPipeline
         public string[] productionScriptingDefineSymbols;
         public string[] uatScriptingDefineSymbols;
 
+        [Space(20)]
+        [Header("Override Addressable Builder Index"), Space(10)]
+        [SerializeField] private bool overrideAddressableBuilderIndex;
+        [SerializeField] private int developmentAddressableBuilderIndex = -1;
+        [SerializeField] private int releaseAddressableBuilderIndex = -1;
+        
+
         private string _additionalScriptingDefineSymbols;
 
         public void Reload()
@@ -89,6 +96,21 @@ namespace Wolffun.BuildPipeline
             this.environment = env;
             _additionalScriptingDefineSymbols = additionalSymbols;
             Reload();
+        }
+
+        /// <summary>
+        /// Get Override ActivePlayerDataBuilderIndex for Build Configuration
+        /// </summary>
+        /// <returns>Return index of ActivePlayerDataBuilderIndex for override. Return -1 if not override</returns>
+        public int GetOverrideAddressableBuilderIndex(string configuration)
+        {
+            if (!overrideAddressableBuilderIndex)
+                return -1;
+
+            if (configuration == "Release")
+                return releaseAddressableBuilderIndex;
+
+            return developmentAddressableBuilderIndex;
         }
     }
     
