@@ -758,18 +758,34 @@ namespace Wolffun.BuildPipeline
             switch (exportProject)
             {
                 case "false":
+                {
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
-                    buildReport = UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
+                    buildReport = UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+                    
+                    if(buildReport.summary.result == BuildResult.Succeeded)
+                        EditorApplication.Exit(0);
+                    else
+                        EditorApplication.Exit(1);
+                    
                     break;
+                }
                 case "true":
                     ExportProject();             
                     break;
 
                 default:
+                {
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
                     buildReport = UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
                     Debug.Log("Không chạy vào case export");
+                    
+                    if(buildReport.summary.result == BuildResult.Succeeded)
+                        EditorApplication.Exit(0);
+                    else
+                        EditorApplication.Exit(1);
+                    
                     break;
+                }
             }
         }
         public static void SetIl2CppCodeGeneration(string targetName, Il2CppCodeGeneration codeGeneration)
