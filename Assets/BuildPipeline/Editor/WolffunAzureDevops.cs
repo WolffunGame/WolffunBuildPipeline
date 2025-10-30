@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
@@ -14,6 +15,10 @@ namespace Wolffun.BuildPipeline
     using UnityEditor;
     public sealed class WolffunAzureDevops
     {
+        public const string CONFIGURATION_DEBUG = "Debug";
+        public const string CONFIGURATION_STAGING = "Staging";
+        public const string CONFIGURATION_RELEASE = "Release";
+        
         static string buildTarget = "";
         static string outputPath = "";
         static string outputFileName = "";
@@ -62,6 +67,7 @@ namespace Wolffun.BuildPipeline
 
         public static void AddRessableBuild()
         {
+            #if ADDRESSABLES_ENABLED 
             Debug.Log("Start build Addressable");
             var settings = AddressableAssetSettingsDefaultObject.Settings;
             if (settings == null)
@@ -81,6 +87,105 @@ namespace Wolffun.BuildPipeline
             {
                 Debug.Log("Addressable content successfully built");
             }
+#endif
+        }
+        
+
+        public static void UpdateBundleAddressable()
+        {
+            Debug.Log("UpdateBundleAddressable");
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-buildTarget")
+                {
+                    buildTarget = args[i + 1];
+                }
+                else if (args[i] == "-buildNumber")
+                {
+                    buildNumber = args[i + 1];
+                }
+                else if (args[i] == "-appversion")
+                {
+                    appversion = args[i + 1];
+                }
+                else if (args[i] == "-env")
+                {
+                    environment = args[i + 1];
+                }
+            }
+            BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+            switch (buildTarget) 
+                {
+                case "Android":
+                    buildPlayerOptions.target = BuildTarget.Android;
+                    PlayerSettings.Android.bundleVersionCode = int.Parse(buildNumber);
+                    PlayerSettings.bundleVersion = appversion;
+                    break;
+                case "iOS":
+                    buildPlayerOptions.target = BuildTarget.iOS;
+                    PlayerSettings.iOS.buildNumber = buildNumber;
+                    PlayerSettings.bundleVersion = appversion;
+                    break;
+                case "StandaloneWindows":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 32 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+                    break;
+                case "StandaloneWindows64":
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
+                    PlayerSettings.bundleVersion = appversion;
+                    //windows 64 bit output file
+                    buildPlayerOptions.locationPathName =
+                        Path.Combine(outputPath, outputFileName + "." + outputExtension);
+
+                    break;
+                case "WebGL":
+                    buildPlayerOptions.target = BuildTarget.WebGL;
+                    PlayerSettings.bundleVersion = appversion;
+                    PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+                    PlayerSettings.WebGL.memorySize = 512;
+                    PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
+                    //PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
+                    //webgl output file
+                    buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
+
+                    break;
+                default:
+                    buildPlayerOptions.target = BuildTarget.StandaloneWindows;
+                    break; 
+                }
+            
+            var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+            var config = GetBuildConfig();
+            
+            var overrideAddressableProfileName = config.GetAddressableProfileName(CONFIGURATION_RELEASE);
+                            
+            if(!string.IsNullOrEmpty(overrideAddressableProfileName))
+                Debug.Log($"Try Override Addressable Profile Name {overrideAddressableProfileName}");
+            var overrideProfileId =
+                settings.profileSettings.GetProfileId(overrideAddressableProfileName);
+            
+            Debug.Log($"UpdateBundleAddressable {buildTarget}/{appversion}_{buildNumber}");
+
+            if (!string.IsNullOrEmpty(overrideProfileId))
+            {
+                settings.activeProfileId = overrideProfileId;
+                Debug.Log($"Override Addressable Profile Name {overrideAddressableProfileName} Success with Id {overrideProfileId}");
+            }
+            
+
+            var contentStateBinLocation =
+                $"Assets/CacheAddressableContentState/{buildTarget}/{appversion}_{buildNumber}/addressables_content_state.bin";
+            if (!File.Exists(contentStateBinLocation))
+            {
+                throw new Exception($"addressables_content_state at location {contentStateBinLocation} not found");
+            }
+
+            ContentUpdateScript.BuildContentUpdate(AddressableAssetSettingsDefaultObject.Settings,
+                contentStateBinLocation);
         }
 
 #endregion
@@ -217,7 +322,7 @@ namespace Wolffun.BuildPipeline
                     defaultScreenWidth = args[i + 1];
                 }
                 
-#endif
+#endif            
                 else if (args[i] == "-il2cppCodegen")
                 {
                     il2cppCodegen = args[i + 1];
@@ -258,7 +363,24 @@ namespace Wolffun.BuildPipeline
             PlayerSettings.runInBackground = runInBackground == "true";
             
             PlayerSettings.forceSingleInstance = forceSingleInstance == "true";
-#endif
+#endif       
+            var config = GetBuildConfig();
+
+            var enumEnvironment = Environment.Production;
+            switch (environment)
+            {
+                case "UAT":
+                    enumEnvironment = Environment.UAT;
+                    break;
+                case "Production":
+                    enumEnvironment = Environment.Production;
+                    break;
+                case "Staging":
+                    enumEnvironment = Environment.Staging;
+                    break;
+            }
+            
+            
             switch (scriptingBackend)
             {
                 case "Mono":
@@ -284,21 +406,20 @@ namespace Wolffun.BuildPipeline
                 default:
                     break;
             }
+
             try
             {
-
                 if (typeBundle == "Addressables")
                 {
                     Debug.Log("Check build Addressable");
 
+
                     if (buildManualAddressable == "true")
                     {
-
                         Debug.Log("Do not build Addressable");
                         var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                         settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer; 
-
                     }
                     else
                     {
@@ -308,6 +429,20 @@ namespace Wolffun.BuildPipeline
                             Debug.Log("Start check Addressable: build addressable");
                             //get AddressableAssetSettings
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+
+                            var overrideAddressableProfileName = config.GetAddressableProfileName(configuration);
+                            
+                            if(!string.IsNullOrEmpty(overrideAddressableProfileName))
+                                Debug.Log($"Try Override Addressable Profile Name {overrideAddressableProfileName}");
+                            var overrideProfileId =
+                                settings.profileSettings.GetProfileId(overrideAddressableProfileName);
+
+                            if (!string.IsNullOrEmpty(overrideProfileId))
+                            {
+                                settings.activeProfileId = overrideProfileId;
+                                Debug.Log($"Override Addressable Profile Name {overrideAddressableProfileName} Success with Id {overrideProfileId}");
+                            }
+                            
                             settings.BuildAddressablesWithPlayerBuild =
                                 AddressableAssetSettings.PlayerBuildOption.BuildWithPlayer;
                         }
@@ -317,10 +452,9 @@ namespace Wolffun.BuildPipeline
                             var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
                             settings.BuildAddressablesWithPlayerBuild =
                             AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                        }
+                        }  
                     }
                 }
-
                 else if(typeBundle == "AssetBundle")
                 {
                     if (assetBundle == "true")
@@ -432,7 +566,6 @@ namespace Wolffun.BuildPipeline
 
             Debug.Log("output: " + buildPlayerOptions.locationPathName);
 #endif
-            var config = GetBuildConfig();
             if (!config)
             {
                 Debug.LogError("Cannot find cloud build config");
@@ -455,19 +588,13 @@ namespace Wolffun.BuildPipeline
                     break;
             }
 
-
             //environment
-            switch (environment)
+            config.SetEnvironment(enumEnvironment, scriptDefinedSymbols);
+            
+            if(configuration == CONFIGURATION_RELEASE)
             {
-                case "UAT":
-                    config.SetEnvironment(Environment.UAT, scriptDefinedSymbols);
-                    break;
-                case "Production":
-                    config.SetEnvironment(Environment.Production, scriptDefinedSymbols);
-                    break;
-                case "Staging":
-                    config.SetEnvironment(Environment.Staging, scriptDefinedSymbols);
-                    break;
+                Debug.Log($"Prepare update AddressableContent.cs bundle version to {buildNumber}");
+                UpdateBundleVersion("Assets/Scripts/AddressableContent.cs", buildNumber);
             }
 
             // Check Build sever
@@ -519,12 +646,11 @@ namespace Wolffun.BuildPipeline
                         Path.Combine(outputPath, outputFileName + "." + outputExtension);
                     break;
                 case "WebGL":
-                    Debug.Log("Build WebGL");
                     buildPlayerOptions.target = BuildTarget.WebGL;
                     PlayerSettings.bundleVersion = appversion;
-                    //PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
-                    //PlayerSettings.WebGL.memorySize = 512;
-                    //PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
+                    PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+                    PlayerSettings.WebGL.memorySize = 512;
+                    PlayerSettings.WebGL.linkerTarget = WebGLLinkerTarget.Wasm;
                     //PlayerSettings.WebGL.exceptionSupport = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
                     //webgl output file
                     buildPlayerOptions.locationPathName = Path.Combine(outputPath, outputFileName);
@@ -599,11 +725,12 @@ namespace Wolffun.BuildPipeline
 
 
             //UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+            BuildReport buildReport = null;
             switch (exportProject)
             {
                 case "false":
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
-                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
+                    buildReport = UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);              
                     break;
                 case "true":
                     ExportProject();             
@@ -611,7 +738,7 @@ namespace Wolffun.BuildPipeline
 
                 default:
                     EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
-                    UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
+                    buildReport = UnityEditor.BuildPipeline.BuildPlayer(buildPlayerOptions);
                     Debug.Log("Không chạy vào case export");
                     break;
             }
@@ -714,7 +841,7 @@ namespace Wolffun.BuildPipeline
         }
         public static void SetupAddressableRule()
         {
-#if ADDRESSABLES_ENABLED
+#if ADDRESSABLES_ENABLED 
             if (!string.IsNullOrEmpty(addressableRule))
             {
                 if (enableAddressableRule == "true")
@@ -785,7 +912,27 @@ namespace Wolffun.BuildPipeline
             EditorUserBuildSettings.buildAppBundle = true;
             BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, exportPath, BuildTarget.Android, BuildOptions.None);
         }
-#endregion
+        
+        private static void UpdateBundleVersion(string filePath, string newVersion)
+        {
+            if (!File.Exists(filePath))
+            {
+                Debug.LogError($"File not found: {filePath}");
+                return;
+            }
+
+            string content = File.ReadAllText(filePath);
+
+            // Regex tìm dòng: private static string BundleVersion = "0";
+            string pattern = @"private\s+static\s+string\s+BundleVersion\s*=\s*""[^""]*"";";
+            string replacement = $"private static string BundleVersion = \"{newVersion}\";";
+
+            string updated = Regex.Replace(content, pattern, replacement);
+
+            File.WriteAllText(filePath, updated);
+            AssetDatabase.Refresh();
+        }
+        #endregion
     }
     
 }

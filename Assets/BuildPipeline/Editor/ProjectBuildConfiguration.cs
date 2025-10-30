@@ -14,7 +14,11 @@ namespace Wolffun.BuildPipeline
         public string[] productionScriptingDefineSymbols;
         public string[] uatScriptingDefineSymbols;
 
+        [SerializeField] private string stagingAddressableProfileName;
+        [SerializeField] private string productionAddressableProfileName;
+
         private string _additionalScriptingDefineSymbols;
+        
 
         public void Reload()
         {
@@ -82,6 +86,17 @@ namespace Wolffun.BuildPipeline
 
             //save the asset
             AssetDatabase.SaveAssets();
+        }
+
+        public string GetAddressableProfileName(string buildConfiguration)
+        {
+            switch (buildConfiguration)
+            {
+                case WolffunAzureDevops.CONFIGURATION_RELEASE:
+                    return productionAddressableProfileName;
+                default:
+                    return stagingAddressableProfileName;
+            }
         }
         
         public void SetEnvironment(Environment env, string additionalSymbols = "")
