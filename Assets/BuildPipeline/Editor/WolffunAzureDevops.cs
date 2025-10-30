@@ -365,8 +365,7 @@ namespace Wolffun.BuildPipeline
             PlayerSettings.runInBackground = runInBackground == "true";
             
             PlayerSettings.forceSingleInstance = forceSingleInstance == "true";
-#endif       
-            var config = GetBuildConfig();
+#endif      
 
             var enumEnvironment = Environment.Production;
             switch (environment)
