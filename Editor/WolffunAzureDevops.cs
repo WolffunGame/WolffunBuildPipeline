@@ -36,7 +36,7 @@ namespace Wolffun.BuildPipeline
         private static string buildServer = "false";
         static string exportProject = "false";
         private static string buildManualAddressable = "false";
-        static string cleanBuild = "false";
+        static string cleanBuild = "true";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";         
