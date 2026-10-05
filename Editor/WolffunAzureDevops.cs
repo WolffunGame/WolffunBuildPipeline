@@ -36,6 +36,7 @@ namespace Wolffun.BuildPipeline
         private static string buildServer = "false";
         static string exportProject = "false";
         private static string buildManualAddressable = "false";
+        static string cleanBuild = "false";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";         
@@ -161,6 +162,10 @@ namespace Wolffun.BuildPipeline
                 else if (args[i] == "-exportProject")
                 {
                     exportProject = args[i + 1];
+                }
+                else if (args[i] == "-cleanBuild")
+                {
+                    cleanBuild = args[i + 1];
                 }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
@@ -453,6 +458,13 @@ namespace Wolffun.BuildPipeline
                 default:
                     buildPlayerOptions.options |= BuildOptions.None;
                     break;
+            }
+
+            //clean build: discard the incremental build cache (Library/Bee) so the player is rebuilt from scratch
+            Debug.Log("cleanBuild: " + cleanBuild);
+            if (cleanBuild == "true")
+            {
+                buildPlayerOptions.options |= BuildOptions.CleanBuildCache;
             }
 
 
