@@ -24,8 +24,8 @@ namespace Wolffun.BuildPipeline
         static string scriptingBackend = "Mono";
         static string outputExtension = "";
         static string scriptDefinedSymbols = "";
-        static string typeBundle = "Addressables";
-        static string assetBundle = "false";
+        static string typeBundle = "AssetBundle";
+        static string assetBundle = "true";
         static string screenMode = "FullScreenWindow";
         static string defaultScreenHeight = "1080";
         static string defaultScreenWidth = "1920";
@@ -137,11 +137,18 @@ namespace Wolffun.BuildPipeline
                 }
                 else if(args[i] == "-typeBundle")
                 {
-                    typeBundle = args[i + 1];
+                    // only a known type overrides the default; an undefined Azure variable arrives as "$(TypeBundle)"
+                    var value = i + 1 < args.Length ? args[i + 1] : "";
+                    if (value == "Addressables" || value == "AssetBundle")
+                        typeBundle = value;
+                    else
+                        Debug.LogWarning("-typeBundle '" + value + "' is not Addressables/AssetBundle, using " + typeBundle);
                 }
                 else if(args[i] == "-assetBundle")
                 {
-                    assetBundle = args[i + 1];
+                    // asset bundles are built unless the pipeline explicitly passes false
+                    var value = i + 1 < args.Length ? args[i + 1] : "";
+                    assetBundle = value == "false" ? "false" : "true";
                 }
                 else if(args[i] == "-addressableRule")
                 {
@@ -294,6 +301,7 @@ namespace Wolffun.BuildPipeline
 
             try
             {
+                Debug.Log("typeBundle: " + typeBundle + ", assetBundle: " + assetBundle);
                 if (typeBundle == "Addressables")
                 {
                     Debug.Log("Check build Addressable");
