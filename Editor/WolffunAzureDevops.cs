@@ -37,6 +37,7 @@ namespace Wolffun.BuildPipeline
         static string exportProject = "false";
         private static string buildManualAddressable = "false";
         static string cleanBuild = "true";
+        static string addressablesDataBuilder = "";
 #if UNITY_ANDROID
            static string splitApplicationBinary = "false";
            static string androidCreateSymbols = "false";         
@@ -71,8 +72,12 @@ namespace Wolffun.BuildPipeline
                 Debug.LogError("Can't find setting");
                 PowerShellAndBashMethod.RunErrorBash();
             }
-            var mode = ScriptableObject.CreateInstance<BuildScriptsAzurePipeline>();
-            var res = mode.BuildData<AddressablesPlayerBuildResult>(new AddressablesDataBuilderInput(settings));
+            var builderName = ReadAddressablesDataBuilderArg(System.Environment.GetCommandLineArgs());
+            SelectAddressablesDataBuilder(settings, builderName);
+            var input = new AddressablesDataBuilderInput(settings);
+            var res = string.IsNullOrEmpty(builderName)
+                ? ScriptableObject.CreateInstance<BuildScriptsAzurePipeline>().BuildData<AddressablesPlayerBuildResult>(input)
+                : settings.ActivePlayerDataBuilder.BuildData<AddressablesPlayerBuildResult>(input);
         
             if (!string.IsNullOrEmpty(res.Error))
             {
@@ -84,6 +89,35 @@ namespace Wolffun.BuildPipeline
                 Debug.Log("Addressable content successfully built");
             }
 #endif
+        }
+
+        /// <summary>
+        /// Reads -addressablesDataBuilder. An undefined Azure variable arrives as "$(Name)" and counts as not set.
+        /// </summary>
+        static string ReadAddressablesDataBuilderArg(string[] args)
+        {
+            var i = Array.IndexOf(args, "-addressablesDataBuilder");
+            var value = i >= 0 && i + 1 < args.Length ? args[i + 1] : "";
+            return value.StartsWith("$(") ? "" : value;
+        }
+
+        /// <summary>
+        /// Makes the named data builder (e.g. "Play Asset Delivery") the one Addressables builds player content with.
+        /// An empty name keeps the project's active builder.
+        /// </summary>
+        public static void SelectAddressablesDataBuilder(AddressableAssetSettings settings, string builderName)
+        {
+            if (string.IsNullOrEmpty(builderName))
+                return;
+
+            var names = settings.DataBuilders.Select(b => (b as IDataBuilder)?.Name).ToList();
+            var index = names.IndexOf(builderName);
+            if (index < 0)
+                throw new BuildFailedException("Addressables data builder '" + builderName + "' not found. Available: " + string.Join(", ", names));
+
+            settings.ActivePlayerDataBuilderIndex = index;
+            EditorUtility.SetDirty(settings);
+            Debug.Log("Addressables data builder: " + builderName);
         }
 
 #endregion
@@ -173,6 +207,10 @@ namespace Wolffun.BuildPipeline
                 else if (args[i] == "-cleanBuild")
                 {
                     cleanBuild = args[i + 1];
+                }
+                else if (args[i] == "-addressablesDataBuilder")
+                {
+                    addressablesDataBuilder = ReadAddressablesDataBuilderArg(args);
                 }
 #if UNITY_ANDROID
                 else if (args[i] == "-buildAppBundle")
@@ -298,6 +336,10 @@ namespace Wolffun.BuildPipeline
                 default:
                     break;
             }
+
+            // outside the try below: a missing data builder must fail the build, not be swallowed
+            if (typeBundle == "Addressables")
+                SelectAddressablesDataBuilder(AddressableAssetSettingsDefaultObject.Settings, addressablesDataBuilder);
 
             try
             {
