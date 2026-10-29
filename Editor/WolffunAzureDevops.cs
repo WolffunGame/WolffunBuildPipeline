@@ -24,7 +24,7 @@ namespace Wolffun.BuildPipeline
         static string scriptingBackend = "Mono";
         static string outputExtension = "";
         static string scriptDefinedSymbols = "";
-        static string typeBundle = "AssetBundle";
+        static string typeBundle = "Addressables";
         static string assetBundle = "true";
         static string screenMode = "FullScreenWindow";
         static string defaultScreenHeight = "1080";
@@ -73,6 +73,8 @@ namespace Wolffun.BuildPipeline
                 PowerShellAndBashMethod.RunErrorBash();
             }
             var builderName = ReadAddressablesDataBuilderArg(System.Environment.GetCommandLineArgs());
+            if (string.IsNullOrEmpty(builderName) && EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android && EditorUserBuildSettings.buildAppBundle)
+                builderName = DefaultPlayAssetDeliveryBuilder(settings);
             SelectAddressablesDataBuilder(settings, builderName);
             var input = new AddressablesDataBuilderInput(settings);
             var res = string.IsNullOrEmpty(builderName)
@@ -99,6 +101,20 @@ namespace Wolffun.BuildPipeline
             var i = Array.IndexOf(args, "-addressablesDataBuilder");
             var value = i >= 0 && i + 1 < args.Length ? args[i + 1] : "";
             return value.StartsWith("$(") ? "" : value;
+        }
+
+        const string PlayAssetDeliveryBuilderName = "Play Asset Delivery";
+
+        /// <summary>
+        /// Name of the project's Play Asset Delivery data builder, or empty when the project has none.
+        /// </summary>
+        static string DefaultPlayAssetDeliveryBuilder(AddressableAssetSettings settings)
+        {
+            var hasBuilder = settings.DataBuilders.Any(b => (b as IDataBuilder)?.Name == PlayAssetDeliveryBuilderName);
+            Debug.Log(hasBuilder
+                ? "App bundle build: using the '" + PlayAssetDeliveryBuilderName + "' data builder by default"
+                : "App bundle build: no '" + PlayAssetDeliveryBuilderName + "' data builder, keeping the active one");
+            return hasBuilder ? PlayAssetDeliveryBuilderName : "";
         }
 
         /// <summary>
@@ -339,7 +355,15 @@ namespace Wolffun.BuildPipeline
 
             // outside the try below: a missing data builder must fail the build, not be swallowed
             if (typeBundle == "Addressables")
-                SelectAddressablesDataBuilder(AddressableAssetSettingsDefaultObject.Settings, addressablesDataBuilder);
+            {
+                var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
+#if UNITY_ANDROID
+                // app bundles default to the project's Play Asset Delivery builder unless the pipeline names one
+                if (string.IsNullOrEmpty(addressablesDataBuilder) && buildAppBundle == "true")
+                    addressablesDataBuilder = DefaultPlayAssetDeliveryBuilder(addressableSettings);
+#endif
+                SelectAddressablesDataBuilder(addressableSettings, addressablesDataBuilder);
+            }
 
             try
             {
